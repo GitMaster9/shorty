@@ -15,15 +15,34 @@ public class Account {
             strategy = GenerationType.SEQUENCE,
             generator = "account_sequence"
     )
+    private Long id;
     private String accountId;
     private String password;
 
     public Account() {
     }
 
+    public Account(Long id, String accountId, String password) {
+        this.id = id;
+        this.accountId = accountId;
+        this.password = password;
+    }
+
+    public Account(String accountId) {
+        this.accountId = accountId;
+    }
+
     public Account(String accountId, String password) {
         this.accountId = accountId;
         this.password = password;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getAccountId() {
