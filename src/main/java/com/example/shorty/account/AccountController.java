@@ -3,7 +3,6 @@ package com.example.shorty.account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping(path = "administration")
@@ -14,17 +13,6 @@ public class AccountController {
     @Autowired
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
-    }
-
-    /*
-    @GetMapping(path = "get")
-    public List<Account> getAccount() {
-        return accountService.getRegisterAccountResponse();
-    }*/
-
-    @GetMapping(path = "get")
-    public List<Account> getAllAccounts() {
-        return accountService.getAllAccounts();
     }
 
     @PostMapping(path = "register")
