@@ -31,4 +31,9 @@ public class AccountController {
     public ResponseEntity<Object> registerNewAccount(@RequestBody Account account) {
         return accountService.addNewAccount(account);
     }
+
+    @PostMapping(path = "login")
+    public ResponseEntity<Object> loginAccount(@RequestBody Account account) {
+        return accountService.loginAccount(account);
+    }
 }
