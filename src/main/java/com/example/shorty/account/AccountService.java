@@ -4,9 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -17,31 +15,6 @@ public class AccountService {
     @Autowired
     public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
-    }
-
-    public ResponseEntity<Object> getRegisterAccountResponse(String accountId) {
-        /*
-        Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
-        Account account;
-        if (accountOptional.isPresent()) {
-            Account existingAccount = accountOptional.get();
-            account = new Account(existingAccount.getAccountId(), existingAccount.getPassword());
-        }
-        else {
-            account = null;
-        }
-        return account;*/
-        Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
-        if (accountOptional.isPresent()) {
-            return createRegisterSuccessResponse(accountOptional.get().getPassword());
-        }
-        else {
-            return createRegisterFailResponse();
-        }
-    }
-
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
     }
 
     public ResponseEntity<Object> addNewAccount(Account account) {
