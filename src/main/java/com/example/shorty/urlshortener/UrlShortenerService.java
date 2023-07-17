@@ -25,12 +25,15 @@ public class UrlShortenerService {
 
         Optional<UrlShortener> urlShortenerOptional = urlShortenerRepository.findUrlShortenerByUrl(url);
         if (urlShortenerOptional.isPresent()) {
-            String shortUrl = urlShortenerOptional.get().getShortUrl();
+            UrlShortener urlShortener = urlShortenerOptional.get();
+            String shortUrl = urlShortener.getShortUrl();
+            urlShortener.incrementRedirects();
+            urlShortenerRepository.save(urlShortener);
             return createShortSuccessResponse(shortUrl);
         }
 
         String shortUrl = generateShortUrl();
-        UrlShortener urlShortener = new UrlShortener(url, shortUrl, 0);
+        UrlShortener urlShortener = new UrlShortener(url, shortUrl, 1);
         urlShortenerRepository.save(urlShortener);
 
         return createShortSuccessResponse(urlShortener.getShortUrl());
@@ -81,6 +84,20 @@ public class UrlShortenerService {
     public ResponseEntity<Object> createShortFailResponse(String description) {
         Map<String, String> data = new HashMap<>();
         data.put("description", description);
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Object> getStatistics() {
+        Map<String, Object> data = new HashMap<>();
+
+        List<UrlShortener> allURLs = urlShortenerRepository.findAll();
+
+        for (UrlShortener current : allURLs) {
+            String url = current.getUrl();
+            int redirects = current.getRedirects();
+            data.put(url, redirects);
+        }
+
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

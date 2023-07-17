@@ -19,4 +19,9 @@ public class UrlShortenerController {
     public ResponseEntity<Object> getShortURL(@RequestBody Map<String, Object> requestMap) {
         return urlShortenerService.getShortURL(requestMap);
     }
+
+    @GetMapping(path = "statistics")
+    public ResponseEntity<Object> getUserStatistics() {
+        return urlShortenerService.getStatistics();
+    }
 }
