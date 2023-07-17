@@ -22,7 +22,7 @@ public class AccountController {
     }
 
     @PostMapping(path = "login")
-    public ResponseEntity<Object> loginAccount(@RequestBody Account account) {
-        return accountService.loginAccount(account);
+    public ResponseEntity<Object> loginAccount(@RequestBody Map<String, Object> requestMap) {
+        return accountService.loginAccount(requestMap);
     }
 }

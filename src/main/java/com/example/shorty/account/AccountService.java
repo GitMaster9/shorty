@@ -53,9 +53,19 @@ public class AccountService {
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
-    public ResponseEntity<Object> loginAccount(Account account) {
-        String accountId = account.getAccountId();
-        String password = account.getPassword();
+    public ResponseEntity<Object> loginAccount(Map<String, Object> requestMap) {
+        Object accountIdObject = requestMap.get("accountId");
+        if (accountIdObject == null) {
+            return createRequestFailResponse("Failed - no 'accountId' field in request body");
+        }
+
+        Object passwordObject = requestMap.get("password");
+        if (passwordObject == null) {
+            return createRequestFailResponse("Failed - no 'password' field in request body");
+        }
+
+        String accountId = accountIdObject.toString();
+        String password = passwordObject.toString();
 
         Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
         if (accountOptional.isPresent()) {
@@ -76,6 +86,6 @@ public class AccountService {
     public ResponseEntity<Object> createRequestFailResponse(String description) {
         Map<String, String> data = new HashMap<>();
         data.put("description", description);
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
     }
 }
