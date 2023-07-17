@@ -17,8 +17,13 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    public ResponseEntity<Object> addNewAccount(Account account) {
-        String accountId = account.getAccountId();
+    public ResponseEntity<Object> addNewAccount(Map<String, Object> requestMap) {
+        Object accountIdObject = requestMap.get("accountId");
+        if (accountIdObject == null) {
+            return createRequestFailResponse("Failed - no 'accountId' field in request body");
+        }
+
+        String accountId = accountIdObject.toString();
 
         Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
         if (accountOptional.isPresent()) {
@@ -27,11 +32,10 @@ public class AccountService {
         else {
             // TODO: Generate a random password for new user
             String password = "dummypwd";
-            account.setPassword(password);
-
+            Account account = new Account(accountId, password);
             accountRepository.save(account);
 
-            return createRegisterSuccessResponse(account.getPassword());
+            return createRegisterSuccessResponse(password);
         }
     }
 
@@ -66,6 +70,12 @@ public class AccountService {
     public ResponseEntity<Object> createSuccessStatusResponse(boolean isSuccessful) {
         Map<String, Object> data = new HashMap<>();
         data.put("success", isSuccessful);
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    public ResponseEntity<Object> createRequestFailResponse(String description) {
+        Map<String, String> data = new HashMap<>();
+        data.put("description", description);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 }

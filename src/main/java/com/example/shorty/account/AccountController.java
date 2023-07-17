@@ -3,6 +3,7 @@ package com.example.shorty.account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "administration")
@@ -16,8 +17,8 @@ public class AccountController {
     }
 
     @PostMapping(path = "register")
-    public ResponseEntity<Object> registerNewAccount(@RequestBody Account account) {
-        return accountService.addNewAccount(account);
+    public ResponseEntity<Object> registerNewAccount(@RequestBody Map<String, Object> requestMap) {
+        return accountService.addNewAccount(requestMap);
     }
 
     @PostMapping(path = "login")

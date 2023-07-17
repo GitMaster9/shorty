@@ -22,42 +22,16 @@ public class Account {
     public Account() {
     }
 
-    public Account(Long id, String accountId, String password) {
-        this.id = id;
-        this.accountId = accountId;
-        this.password = password;
-    }
-
-    public Account(String accountId) {
-        this.accountId = accountId;
-    }
-
     public Account(String accountId, String password) {
         this.accountId = accountId;
         this.password = password;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(String accountId) {
-        this.accountId = accountId;
-    }
-
     public String getPassword() {
         return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }
