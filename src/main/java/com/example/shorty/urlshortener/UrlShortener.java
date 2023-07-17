@@ -18,49 +18,30 @@ public class UrlShortener {
     private Long id;
     private String url;
     private String shortUrl;
-    private int clicks;
+    private int redirects;
 
     public UrlShortener() {
     }
 
-    public UrlShortener(Long id, String url, String shortUrl, int clicks) {
-        this.id = id;
+    public UrlShortener(String url, String shortUrl, int redirects) {
         this.url = url;
         this.shortUrl = shortUrl;
-        this.clicks = clicks;
-    }
-
-    public UrlShortener(String url, String shortUrl, int clicks) {
-        this.url = url;
-        this.shortUrl = shortUrl;
-        this.clicks = clicks;
-    }
-
-    public UrlShortener(String url) {
-        this.url = url;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+        this.redirects = redirects;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     public String getShortUrl() {
         return shortUrl;
     }
 
-    public void setShortUrl(String shortUrl) {
-        this.shortUrl = shortUrl;
+    public int getRedirects() {
+        return redirects;
+    }
+
+    public void incrementRedirects() {
+        redirects += 1;
     }
 }
