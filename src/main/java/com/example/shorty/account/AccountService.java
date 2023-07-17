@@ -48,4 +48,24 @@ public class AccountService {
         data.put("password", password);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
+
+    public ResponseEntity<Object> loginAccount(Account account) {
+        String accountId = account.getAccountId();
+        String password = account.getPassword();
+
+        Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
+        if (accountOptional.isPresent()) {
+            if (password.equals(accountOptional.get().getPassword())) {
+                return createSuccessStatusResponse(true);
+            }
+        }
+
+        return createSuccessStatusResponse(false);
+    }
+
+    public ResponseEntity<Object> createSuccessStatusResponse(boolean isSuccessful) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("success", isSuccessful);
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
 }
