@@ -3,6 +3,7 @@ package com.example.shorty.urlshortener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
 @RequestMapping(path = "administration")
@@ -15,7 +16,7 @@ public class UrlShortenerController {
     }
 
     @PostMapping(path = "short")
-    public ResponseEntity<Object> registerNewAccount(@RequestBody UrlShortener urlShortener) {
-        return urlShortenerService.getShortUrl(urlShortener);
+    public ResponseEntity<Object> getShortURL(@RequestBody Map<String, Object> requestMap) {
+        return urlShortenerService.getShortURL(requestMap);
     }
 }
