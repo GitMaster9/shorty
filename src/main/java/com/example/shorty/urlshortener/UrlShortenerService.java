@@ -84,7 +84,7 @@ public class UrlShortenerService {
     public ResponseEntity<Object> createShortFailResponse(String description) {
         Map<String, String> data = new HashMap<>();
         data.put("description", description);
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<Object> getStatistics() {
