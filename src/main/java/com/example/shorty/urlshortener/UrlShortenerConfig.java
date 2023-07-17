@@ -1,0 +1,19 @@
+package com.example.shorty.urlshortener;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import java.util.List;
+
+@Configuration
+public class UrlShortenerConfig {
+    @Bean
+    CommandLineRunner commandLineRunnerUrlShortener(UrlShortenerRepository repository) {
+        return args -> {
+            UrlShortener url1 = new UrlShortener("https://stackoverflow.com","https://shorty.com/dummyurl1", 0);
+            UrlShortener url2 = new UrlShortener("https://youtube.com","https://shorty.com/dummyurl2", 5);
+
+            repository.saveAll(List.of(url1, url2));
+        };
+    }
+}
