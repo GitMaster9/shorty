@@ -1,6 +1,7 @@
 package com.example.shorty.urlshortener;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
@@ -16,12 +17,12 @@ public class UrlShortenerController {
     }
 
     @PostMapping(path = "short")
-    public ResponseEntity<Object> getShortURL(@RequestBody Map<String, Object> requestMap) {
-        return urlShortenerService.getShortURL(requestMap);
+    public ResponseEntity<Object> getShortURL(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken, @RequestBody Map<String, Object> requestMap) {
+        return urlShortenerService.getShortURL(authorizationToken, requestMap);
     }
 
     @GetMapping(path = "statistics")
-    public ResponseEntity<Object> getUserStatistics() {
-        return urlShortenerService.getStatistics();
+    public ResponseEntity<Object> getUserStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
+        return urlShortenerService.getStatistics(authorizationToken);
     }
 }

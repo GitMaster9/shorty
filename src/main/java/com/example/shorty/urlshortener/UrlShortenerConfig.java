@@ -10,8 +10,8 @@ public class UrlShortenerConfig {
     @Bean
     CommandLineRunner commandLineRunnerUrlShortener(UrlShortenerRepository repository) {
         return args -> {
-            UrlShortener url1 = new UrlShortener("https://stackoverflow.com","https://shorty.com/dummyurl1", 1);
-            UrlShortener url2 = new UrlShortener("https://youtube.com","https://shorty.com/dummyurl2", 1);
+            UrlShortener url1 = new UrlShortener("https://stackoverflow.com","https://shorty.com/dummyurl1", "johnny", 1);
+            UrlShortener url2 = new UrlShortener("https://youtube.com","https://shorty.com/dummyurl2", "alex", 1);
 
             repository.saveAll(List.of(url1, url2));
         };
