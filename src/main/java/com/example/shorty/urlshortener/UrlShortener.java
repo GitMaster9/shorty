@@ -18,14 +18,16 @@ public class UrlShortener {
     private Long id;
     private String url;
     private String shortUrl;
+    private String accountId;
     private int redirects;
 
     public UrlShortener() {
     }
 
-    public UrlShortener(String url, String shortUrl, int redirects) {
+    public UrlShortener(String url, String shortUrl, String accountId, int redirects) {
         this.url = url;
         this.shortUrl = shortUrl;
+        this.accountId = accountId;
         this.redirects = redirects;
     }
 
