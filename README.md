@@ -6,6 +6,7 @@
 * Spring Web (spring-boot-starter-web)
 * Spring Data JPA (spring-boot-starter-data-jpa)
 * PostgreSQL (postgresql)
+* Lombok (lombok)
 
 ### Database
 PostgreSQL - local server (Windows machine)\

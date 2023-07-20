@@ -1,9 +1,12 @@
 package com.example.shorty.urlshortener;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table
+@NoArgsConstructor
 public class UrlShortener {
     @Id
     @SequenceGenerator(
@@ -16,31 +19,19 @@ public class UrlShortener {
             generator = "urlshortener_sequence"
     )
     private Long id;
+    @Getter
     private String url;
+    @Getter
     private String shortUrl;
     private String accountId;
+    @Getter
     private int redirects;
-
-    public UrlShortener() {
-    }
 
     public UrlShortener(String url, String shortUrl, String accountId, int redirects) {
         this.url = url;
         this.shortUrl = shortUrl;
         this.accountId = accountId;
         this.redirects = redirects;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public String getShortUrl() {
-        return shortUrl;
-    }
-
-    public int getRedirects() {
-        return redirects;
     }
 
     public void incrementRedirects() {

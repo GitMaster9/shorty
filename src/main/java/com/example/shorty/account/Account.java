@@ -1,9 +1,12 @@
 package com.example.shorty.account;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table
+@NoArgsConstructor
 public class Account {
     @Id
     @SequenceGenerator(
@@ -16,22 +19,13 @@ public class Account {
             generator = "account_sequence"
     )
     private Long id;
+    @Getter
     private String accountId;
+    @Getter
     private String password;
-
-    public Account() {
-    }
 
     public Account(String accountId, String password) {
         this.accountId = accountId;
         this.password = password;
-    }
-
-    public String getAccountId() {
-        return accountId;
-    }
-
-    public String getPassword() {
-        return password;
     }
 }
