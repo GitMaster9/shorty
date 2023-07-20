@@ -2,6 +2,7 @@ package com.example.shorty.urlshortener;
 
 import com.example.shorty.account.Account;
 import com.example.shorty.account.AccountRepository;
+import com.example.shorty.generator.StringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,12 +32,6 @@ public class UrlShortenerService {
 
         String url = urlObject.toString();
 
-        Optional<UrlShortener> urlShortenerOptional = urlShortenerRepository.findURL(account.getAccountId(), url);
-        if (urlShortenerOptional.isPresent()) {
-            String shortUrl = urlShortenerOptional.get().getShortUrl();
-            return createShortSuccessResponse(shortUrl);
-        }
-
         String shortUrl = generateShortUrl();
         UrlShortener urlShortener = new UrlShortener(url, shortUrl, account.getAccountId(), 0);
         urlShortenerRepository.save(urlShortener);
@@ -51,27 +46,11 @@ public class UrlShortenerService {
 
         boolean urlExists = true;
         while (urlExists) {
-            shortUrl = urlStart + getRandomString();
+            shortUrl = StringGenerator.generateUrl(urlStart);
             urlExists = checkIfShortUrlExists(shortUrl);
         }
 
         return shortUrl;
-    }
-
-    private String getRandomString() {
-        String alphanumericCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
-        int stringSize = 7;
-
-        StringBuilder randomString = new StringBuilder(stringSize);
-        Random random = new Random();
-
-        for (int i = 0; i < stringSize; i++) {
-            int randomIndex = random.nextInt(alphanumericCharacters.length());
-            char randomChar = alphanumericCharacters.charAt(randomIndex);
-            randomString.append(randomChar);
-        }
-
-        return randomString.toString();
     }
 
     private boolean checkIfShortUrlExists(String shortUrl) {
@@ -100,9 +79,30 @@ public class UrlShortenerService {
 
         List<UrlShortener> allURLs = urlShortenerRepository.findAllUrlShortenersByUser(account.getAccountId());
 
+        List<UrlShortener> uniqueURLs = new ArrayList<>();
+
         for (UrlShortener current : allURLs) {
-            String url = current.getUrl();
-            int redirects = current.getRedirects();
+            String currentUrl = current.getUrl();
+
+            boolean foundUnique = false;
+            for (UrlShortener unique : uniqueURLs) {
+                String url = unique.getUrl();
+                if (url.equals(currentUrl)) {
+                    int newRedirects = current.getRedirects();
+                    unique.incrementRedirects(newRedirects);
+                    foundUnique = true;
+                    break;
+                }
+            }
+
+            if (foundUnique) continue;
+
+            uniqueURLs.add(current);
+        }
+
+        for (UrlShortener unique : uniqueURLs) {
+            String url = unique.getUrl();
+            int redirects = unique.getRedirects();
             data.put(url, redirects);
         }
 
@@ -141,7 +141,7 @@ public class UrlShortenerService {
         Optional<UrlShortener> urlShortenerOptional = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
         if (urlShortenerOptional.isPresent()) {
             UrlShortener urlShortener = urlShortenerOptional.get();
-            urlShortener.incrementRedirects();
+            urlShortener.incrementRedirects(1);
             urlShortenerRepository.save(urlShortener);
         }
     }

@@ -1,5 +1,6 @@
 package com.example.shorty.account;
 
+import com.example.shorty.generator.StringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,7 @@ public class AccountService {
             return createRegisterFailResponse();
         }
         else {
-            // TODO: Generate a random password for new user
-            String password = "dummypwd";
+            String password = StringGenerator.generatePassword();
             Account account = new Account(accountId, password);
             accountRepository.save(account);
 

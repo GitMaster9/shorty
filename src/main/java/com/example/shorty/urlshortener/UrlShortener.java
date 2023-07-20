@@ -34,7 +34,7 @@ public class UrlShortener {
         this.redirects = redirects;
     }
 
-    public void incrementRedirects() {
-        redirects += 1;
+    public void incrementRedirects(int add) {
+        redirects += add;
     }
 }
