@@ -109,7 +109,7 @@ public class UrlShortenerService {
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
-    private Account getAccountFromToken(String token) {
+    public Account getAccountFromToken(String token) {
         if (!token.startsWith(basicTokenStart)) return null;
 
         String[] decodedStrings = decodeBasicToken(token);

@@ -13,6 +13,11 @@
 * Spring Data JPA (spring-boot-starter-data-jpa)
 * PostgreSQL (postgresql)
 * Lombok (lombok)
+* AssertJ (assertj-core)
+* Hamcrest (hamcrest)
+* Junit Jupiter (junit-jupiter)
+* Mockito (mockito-core)
+* H2 (h2)
 
 ### Database
 PostgreSQL - local server (Windows machine)\
