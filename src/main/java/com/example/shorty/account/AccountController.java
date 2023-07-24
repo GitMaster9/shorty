@@ -1,14 +1,12 @@
 package com.example.shorty.account;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 @RestController
-@RequestMapping(path = "api/v1/account")
+@RequestMapping(path = "administration")
 public class AccountController {
 
     private final AccountService accountService;
@@ -18,8 +16,13 @@ public class AccountController {
         this.accountService = accountService;
     }
 
-    @GetMapping
-    public List<Account> getAccounts() {
-        return accountService.getAccounts();
+    @PostMapping(path = "register")
+    public ResponseEntity<Object> registerNewAccount(@RequestBody Map<String, Object> requestMap) {
+        return accountService.addNewAccount(requestMap);
+    }
+
+    @PostMapping(path = "login")
+    public ResponseEntity<Object> loginAccount(@RequestBody Map<String, Object> requestMap) {
+        return accountService.loginAccount(requestMap);
     }
 }
