@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -26,17 +25,16 @@ public class AccountService {
 
         String accountId = accountIdObject.toString();
 
-        Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
-        if (accountOptional.isPresent()) {
+        Account account = accountRepository.findAccountById(accountId);
+        if (account != null) {
             return createRegisterFailResponse();
         }
-        else {
-            String password = StringGenerator.generatePassword();
-            Account account = new Account(accountId, password);
-            accountRepository.save(account);
 
-            return createRegisterSuccessResponse(password);
-        }
+        String password = StringGenerator.generatePassword();
+        Account newAccount = new Account(accountId, password);
+        accountRepository.save(newAccount);
+
+        return createRegisterSuccessResponse(password);
     }
 
     public ResponseEntity<Object> createRegisterFailResponse() {
@@ -67,14 +65,12 @@ public class AccountService {
         String accountId = accountIdObject.toString();
         String password = passwordObject.toString();
 
-        Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
-        if (accountOptional.isPresent()) {
-            if (password.equals(accountOptional.get().getPassword())) {
-                return createSuccessStatusResponse(true);
-            }
+        Account account = accountRepository.findAccountByIdAndPassword(accountId, password);
+        if (account == null) {
+            return createSuccessStatusResponse(false);
         }
 
-        return createSuccessStatusResponse(false);
+        return createSuccessStatusResponse(true);
     }
 
     public ResponseEntity<Object> createSuccessStatusResponse(boolean isSuccessful) {

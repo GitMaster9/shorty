@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import java.util.List;
-import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
@@ -17,14 +16,14 @@ class UrlShortenerRepositoryTest {
     void checkIfFindUrlShortenerByShortUrl() {
         //given
         String shortUrl = "www.shorty.com";
-        UrlShortener urlShortener = new UrlShortener("www.youtube.com", shortUrl, "karlo", 0);
-        underTest.save(urlShortener);
+        UrlShortener newUrlShortener = new UrlShortener("www.youtube.com", shortUrl, "karlo", 0);
+        underTest.save(newUrlShortener);
 
         // when
-        Optional<UrlShortener> exists = underTest.findUrlShortenerByShortUrl(shortUrl);
+        UrlShortener exists = underTest.findUrlShortenerByShortUrl(shortUrl);
 
         // then
-        assertThat(exists).isPresent();
+        assertThat(exists).isEqualTo(newUrlShortener);
     }
 
     @Test
@@ -33,10 +32,10 @@ class UrlShortenerRepositoryTest {
         String shortUrl = "www.shorty.com";
 
         // when
-        Optional<UrlShortener> exists = underTest.findUrlShortenerByShortUrl(shortUrl);
+        UrlShortener exists = underTest.findUrlShortenerByShortUrl(shortUrl);
 
         // then
-        assertThat(exists).isEmpty();
+        assertThat(exists).isNull();
     }
 
     @Test

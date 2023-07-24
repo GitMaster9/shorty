@@ -3,7 +3,6 @@ package com.example.shorty.account;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import java.util.Optional;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
@@ -12,29 +11,25 @@ class AccountRepositoryTest {
     @Autowired
     private AccountRepository underTest;
 
+
     @Test
-    void checkIfFindAccountByAccountId() {
-        //given
+    void checkTestFind() {
         String accountId = "karlo";
-        Account account = new Account(accountId, "sifra");
-        underTest.save(account);
 
-        // when
-        Optional<Account> exists =  underTest.findAccountByAccountId(accountId);
+        Account testAccount = new Account(accountId, "password");
+        underTest.save(testAccount);
 
-        // then
-        assertThat(exists).isPresent();
+        Account account = underTest.findAccountById(accountId);
+
+        assertThat(account).isEqualTo(testAccount);
     }
 
     @Test
-    void checkIfDoesNotFindAccountByAccountId() {
-        //given
+    void checkTestNotFind() {
         String accountId = "karlo";
 
-        // when
-        Optional<Account> exists = underTest.findAccountByAccountId(accountId);
+        Account account = underTest.findAccountById(accountId);
 
-        // then
-        assertThat(exists).isEmpty();
+        assertThat(account).isNull();
     }
 }

@@ -3,6 +3,7 @@ package com.example.shorty.urlshortener;
 import com.example.shorty.account.Account;
 import com.example.shorty.account.AccountRepository;
 import com.example.shorty.generator.StringGenerator;
+import com.example.shorty.token.TokenEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,9 +55,9 @@ public class UrlShortenerService {
     }
 
     private boolean checkIfShortUrlExists(String shortUrl) {
-        Optional<UrlShortener> urlShortenerOptional = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
+        UrlShortener urlShortener = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
 
-        return urlShortenerOptional.isPresent();
+        return urlShortener != null;
     }
 
     public ResponseEntity<Object> createShortSuccessResponse(String shortUrl) {
@@ -112,35 +113,16 @@ public class UrlShortenerService {
     public Account getAccountFromToken(String token) {
         if (!token.startsWith(basicTokenStart)) return null;
 
-        String[] decodedStrings = decodeBasicToken(token);
+        String[] decodedStrings = TokenEncoder.decodeBasicToken(token);
         String accountId = decodedStrings[0];
         String password = decodedStrings[1];
 
-        if (!authenticateAccount(accountId, password)) {
-            return null;
-        }
-
-        return new Account(accountId, password);
-    }
-
-    private String[] decodeBasicToken(String token) {
-        String encodedString = token.replaceFirst(basicTokenStart, "");
-
-        byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
-        String decodedString = new String(decodedBytes);
-
-        return decodedString.split(":", 2);
-    }
-
-    private boolean authenticateAccount(String accountId, String password) {
-        Optional<Account> accountOptional = accountRepository.findAccountByAccountId(accountId);
-        return accountOptional.filter(account -> password.equals(account.getPassword())).isPresent();
+        return accountRepository.findAccountByIdAndPassword(accountId, password);
     }
 
     public void redirectUrl(String shortUrl) {
-        Optional<UrlShortener> urlShortenerOptional = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
-        if (urlShortenerOptional.isPresent()) {
-            UrlShortener urlShortener = urlShortenerOptional.get();
+        UrlShortener urlShortener = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
+        if (urlShortener != null) {
             urlShortener.incrementRedirects(1);
             urlShortenerRepository.save(urlShortener);
         }
