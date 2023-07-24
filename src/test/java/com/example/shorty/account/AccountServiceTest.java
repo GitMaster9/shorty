@@ -75,22 +75,6 @@ class AccountServiceTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    Object getSuccessFromResponseEntity(ResponseEntity<Object> responseEntity) {
-        Object responseEntityBody =  responseEntity.getBody();
-        if (responseEntityBody == null) {
-            return null;
-        }
-
-        HashMap resultData = (HashMap) responseEntityBody;
-
-        Object successObject = resultData.get("success");
-        if (successObject == null) {
-            return null;
-        }
-
-        return successObject;
-    }
-
     @Test
     void createRegisterSuccessResponseTest() {
         String password = "dummypassword";
@@ -160,27 +144,6 @@ class AccountServiceTest {
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-//    @Test
-//    void loginAccountTestFailWrongPassword() {
-//        // given
-//        String accountId = "karlo1";
-//        String password = "wrong-password";
-//        Map<String, Object> requestMap = new HashMap<>();
-//        requestMap.put("accountId", accountId);
-//        requestMap.put("password", password);
-//
-//        // when
-//        //given(repository.findAccountById(accountId)).willReturn(Optional.of(new Account(accountId, "password")));
-//        given(repository.testFindAccountWithPassword(ac))
-//
-//        ResponseEntity<Object> responseEntity = underTest.loginAccount(requestMap);
-//
-//        // then
-//        Object success = getSuccessFromResponseEntity(responseEntity);
-//        assertThat(success).isEqualTo(false);
-//        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-//    }
-
     @Test
     void loginAccountTestSuccess() {
         // given
@@ -197,7 +160,7 @@ class AccountServiceTest {
         ResponseEntity<Object> responseEntity = underTest.loginAccount(requestMap);
 
         // then
-        Object success = getSuccessFromResponseEntity(responseEntity);
+        Object success = ResponseHandler.getDataFieldFromResponse(responseEntity, "success");
         assertThat(success).isEqualTo(true);
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
