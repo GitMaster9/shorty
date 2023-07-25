@@ -51,7 +51,6 @@ class AccountServiceTest {
 
         // when
         ResponseEntity<Object> responseEntity = underTest.addNewAccount(requestMap);
-
         Object success = ResponseHandler.getDataFieldFromResponse(responseEntity, "success");
 
         // then
@@ -67,7 +66,6 @@ class AccountServiceTest {
         requestMap.put("accountId", accountId);
 
         given(repository.findAccountById(accountId)).willReturn(new Account(accountId, "password"));
-
         ResponseEntity<Object> responseEntity = underTest.addNewAccount(requestMap);
 
         Object success = ResponseHandler.getDataFieldFromResponse(responseEntity, "success");
@@ -76,16 +74,26 @@ class AccountServiceTest {
     }
 
     @Test
-    void createRegisterSuccessResponseTest() {
-        String password = "dummypassword";
-
-        ResponseEntity<Object> responseEntity = underTest.createRegisterSuccessResponse(password);
+    void createRegisterResponseTest() {
+        // Test for fail
+        String description = "Account ID already exists!";
+        ResponseEntity<Object> responseEntity = underTest.createRegisterResponse(false, description);
 
         Map<String, Object> data = new HashMap<>();
+        data.put("success", false);
+        data.put("description", description);
+        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
+
+        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+
+        // Test for success
+        String password = "dummypassword";
+        responseEntity = underTest.createRegisterResponse(true, password);
+
+        data = new HashMap<>();
         data.put("success", true);
         data.put("password", password);
-
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
+        expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
 
         assertThat(responseEntity).isEqualTo(expectedResponseEntity);
     }
@@ -154,9 +162,7 @@ class AccountServiceTest {
         requestMap.put("password", password);
 
         // when
-        //given(repository.findAccountById(accountId)).willReturn(Optional.of(new Account(accountId, password)));
         given(repository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
-
         ResponseEntity<Object> responseEntity = underTest.loginAccount(requestMap);
 
         // then
@@ -168,12 +174,10 @@ class AccountServiceTest {
     @Test
     void createSuccessStatusResponseTest() {
         boolean success = false;
-
         ResponseEntity<Object> responseEntity = underTest.createSuccessStatusResponse(success);
 
         Map<String, Object> data = new HashMap<>();
         data.put("success", success);
-
         ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
 
         assertThat(responseEntity).isEqualTo(expectedResponseEntity);
@@ -182,12 +186,10 @@ class AccountServiceTest {
     @Test
     void createRequestFailResponseTest() {
         String description = "some description";
-
-        ResponseEntity<Object> responseEntity = underTest.createRequestFailResponse(description);
+        ResponseEntity<Object> responseEntity = underTest.createDescriptionResponse(description);
 
         Map<String, Object> data = new HashMap<>();
         data.put("description", description);
-
         ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
 
         assertThat(responseEntity).isEqualTo(expectedResponseEntity);

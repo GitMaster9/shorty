@@ -5,7 +5,6 @@ import com.example.shorty.account.AccountRepository;
 import com.example.shorty.responsehandler.ResponseHandler;
 import com.example.shorty.token.TokenEncoder;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,7 +12,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import static java.lang.Character.isDigit;
 import static java.lang.Character.isLetter;
@@ -112,36 +113,96 @@ class UrlShortenerServiceTest {
     }
 
     @Test
-    void createShortSuccessResponseTest() {
+    void createShortResponseTest() {
         String shortUrl = "www.shorty.com/abcdefg";
-
-        ResponseEntity<Object> responseEntity = underTest.createShortSuccessResponse(shortUrl);
+        ResponseEntity<Object> responseEntity = underTest.createShortResponse(true, shortUrl);
 
         Map<String, Object> data = new HashMap<>();
         data.put("shortUrl", shortUrl);
-
         ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
+
+        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+
+        String description = "Failed because of XYZ!";
+        responseEntity = underTest.createShortResponse(false, description);
+
+        data = new HashMap<>();
+        data.put("description", description);
+        expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
 
         assertThat(responseEntity).isEqualTo(expectedResponseEntity);
     }
 
     @Test
-    void createShortFailResponseTest() {
-        String description = "some description";
+    void getUniqueURLsTest() {
+        List<UrlShortener> allURLs = new ArrayList<>();
 
-        ResponseEntity<Object> responseEntity = underTest.createShortFailResponse(description);
+        UrlShortener test1 = new UrlShortener("www.google.com", "dummy1", "karlo", 1);
+        UrlShortener test2 = new UrlShortener("www.google.com", "dummy2", "karlo", 2);
+        UrlShortener test3 = new UrlShortener("www.youtube.com", "dummy3", "karlo", 4);
+        UrlShortener test4 = new UrlShortener("www.youtube.com", "dummy4", "karlo", 5);
+        UrlShortener test5 = new UrlShortener("www.facebook.com", "dummy5", "karlo", 7);
+        UrlShortener test6 = new UrlShortener("www.facebook.com", "dummy6", "karlo", 20);
+        allURLs.add(test1);
+        allURLs.add(test2);
+        allURLs.add(test3);
+        allURLs.add(test4);
+        allURLs.add(test5);
+        allURLs.add(test6);
+
+        List<UrlShortener> uniqueURLs = underTest.getUniqueURLs(allURLs);
+
+        List<UrlShortener> expectedURLs = new ArrayList<>();
+        UrlShortener unique1 = new UrlShortener("www.google.com", "karlo", 3);
+        UrlShortener unique2 = new UrlShortener("www.youtube.com", "karlo", 9);
+        UrlShortener unique3 = new UrlShortener("www.facebook.com", "karlo", 27);
+        expectedURLs.add(unique1);
+        expectedURLs.add(unique2);
+        expectedURLs.add(unique3);
+
+        assertThat(uniqueURLs).usingRecursiveComparison().isEqualTo(expectedURLs);
+    }
+
+    @Test
+    void GetStatisticsTestFail() {
+        String accountId = "karlo";
+        String password = "password";
+        String token = TokenEncoder.encodeBasicToken(accountId, password);
+
+        ResponseEntity<Object> responseEntity = underTest.getStatistics(token);
 
         Map<String, Object> data = new HashMap<>();
-        data.put("description", description);
-
+        data.put("description", "Failed - Basic token is not valid");
         ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
 
         assertThat(responseEntity).isEqualTo(expectedResponseEntity);
     }
 
-    @Disabled
     @Test
-    void getStatistics() {
+    void getStatisticsTest() {
+        String accountId = "karlo";
+        String password = "password";
+        String token = TokenEncoder.encodeBasicToken(accountId, password);
+
+        List<UrlShortener> allURLs = getAllURLsExample();
+
+        given(accountRepository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+        given(repository.findAllUrlShortenersByUser(accountId)).willReturn(allURLs);
+
+        ResponseEntity<Object> responseEntity = underTest.getStatistics(token);
+
+        List<UrlShortener> expectedURLs = getUniqueURLsExample();
+        Map<String, Object> data = new HashMap<>();
+
+        for (UrlShortener unique : expectedURLs) {
+            String url = unique.getUrl();
+            int redirects = unique.getRedirects();
+            data.put(url, redirects);
+        }
+
+        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
+
+        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
     }
 
     @Test
@@ -166,5 +227,36 @@ class UrlShortenerServiceTest {
         }
 
         assertThat(redirectsStart).isNotEqualTo(redirectsEnd);
+    }
+
+    List<UrlShortener> getAllURLsExample() {
+        List<UrlShortener> allURLs = new ArrayList<>();
+
+        UrlShortener test1 = new UrlShortener("www.google.com", "dummy1", "karlo", 1);
+        UrlShortener test2 = new UrlShortener("www.google.com", "dummy2", "karlo", 2);
+        UrlShortener test3 = new UrlShortener("www.youtube.com", "dummy3", "karlo", 4);
+        UrlShortener test4 = new UrlShortener("www.youtube.com", "dummy4", "karlo", 5);
+        UrlShortener test5 = new UrlShortener("www.facebook.com", "dummy5", "karlo", 7);
+        UrlShortener test6 = new UrlShortener("www.facebook.com", "dummy6", "karlo", 20);
+        allURLs.add(test1);
+        allURLs.add(test2);
+        allURLs.add(test3);
+        allURLs.add(test4);
+        allURLs.add(test5);
+        allURLs.add(test6);
+
+        return allURLs;
+    }
+
+    List<UrlShortener> getUniqueURLsExample() {
+        List<UrlShortener> expectedURLs = new ArrayList<>();
+        UrlShortener unique1 = new UrlShortener("www.google.com", "karlo", 3);
+        UrlShortener unique2 = new UrlShortener("www.youtube.com", "karlo", 9);
+        UrlShortener unique3 = new UrlShortener("www.facebook.com", "karlo", 27);
+        expectedURLs.add(unique1);
+        expectedURLs.add(unique2);
+        expectedURLs.add(unique3);
+
+        return expectedURLs;
     }
 }

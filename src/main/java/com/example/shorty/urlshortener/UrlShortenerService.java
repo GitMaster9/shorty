@@ -14,7 +14,6 @@ import java.util.*;
 public class UrlShortenerService {
     private final UrlShortenerRepository urlShortenerRepository;
     private final AccountRepository accountRepository;
-    private final String basicTokenStart = "Basic ";
 
     @Autowired
     public UrlShortenerService(UrlShortenerRepository urlShortenerRepository, AccountRepository accountRepository) {
@@ -24,20 +23,21 @@ public class UrlShortenerService {
 
     public ResponseEntity<Object> getShortURL(String authorizationToken, Map<String, Object> requestMap) {
         Account account = getAccountFromToken(authorizationToken);
-        if (account == null) return createShortFailResponse("Failed - Basic token is not valid");
+        if (account == null) {
+            return createShortResponse(false, "Failed - Basic token is not valid");
+        }
 
         Object urlObject = requestMap.get("url");
         if (urlObject == null) {
-            return createShortFailResponse("Failed - no 'url' field in request body");
+            return createShortResponse(false, "Failed - no 'url' field in request body");
         }
 
         String url = urlObject.toString();
-
         String shortUrl = generateShortUrl();
         UrlShortener urlShortener = new UrlShortener(url, shortUrl, account.getAccountId(), 0);
         urlShortenerRepository.save(urlShortener);
 
-        return createShortSuccessResponse(urlShortener.getShortUrl());
+        return createShortResponse(true, urlShortener.getShortUrl());
     }
 
     private String generateShortUrl() {
@@ -60,26 +60,32 @@ public class UrlShortenerService {
         return urlShortener != null;
     }
 
-    public ResponseEntity<Object> createShortSuccessResponse(String shortUrl) {
+    public ResponseEntity<Object> createShortResponse(boolean success, String helper) {
         Map<String, String> data = new HashMap<>();
-        data.put("shortUrl", shortUrl);
-        return new ResponseEntity<>(data, HttpStatus.OK);
-    }
-
-    public ResponseEntity<Object> createShortFailResponse(String description) {
-        Map<String, String> data = new HashMap<>();
-        data.put("description", description);
+        if (success) {
+            data.put("shortUrl", helper);
+        }
+        else {
+            data.put("description", helper);
+        }
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
     public ResponseEntity<Object> getStatistics(String authorizationToken) {
         Account account = getAccountFromToken(authorizationToken);
-        if (account == null) return createShortFailResponse("Failed - Basic token is not valid");
-
-        Map<String, Object> data = new HashMap<>();
+        if (account == null) {
+            return createShortResponse(false, "Failed - Basic token is not valid");
+        }
 
         List<UrlShortener> allURLs = urlShortenerRepository.findAllUrlShortenersByUser(account.getAccountId());
 
+        List<UrlShortener> uniqueURLs = getUniqueURLs(allURLs);
+        Map<String, Object> data = getUniqueURLsData(uniqueURLs);
+
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
+    public List<UrlShortener> getUniqueURLs(List<UrlShortener> allURLs) {
         List<UrlShortener> uniqueURLs = new ArrayList<>();
 
         for (UrlShortener current : allURLs) {
@@ -98,8 +104,15 @@ public class UrlShortenerService {
 
             if (foundUnique) continue;
 
-            uniqueURLs.add(current);
+            UrlShortener newUnique = new UrlShortener(currentUrl, current.getAccountId(), current.getRedirects());
+            uniqueURLs.add(newUnique);
         }
+
+        return uniqueURLs;
+    }
+
+    public Map<String, Object> getUniqueURLsData(List<UrlShortener> uniqueURLs) {
+        Map<String, Object> data = new HashMap<>();
 
         for (UrlShortener unique : uniqueURLs) {
             String url = unique.getUrl();
@@ -107,11 +120,11 @@ public class UrlShortenerService {
             data.put(url, redirects);
         }
 
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return data;
     }
 
     public Account getAccountFromToken(String token) {
-        if (!token.startsWith(basicTokenStart)) return null;
+        if (!token.startsWith(TokenEncoder.basicTokenStart)) return null;
 
         String[] decodedStrings = TokenEncoder.decodeBasicToken(token);
         String accountId = decodedStrings[0];

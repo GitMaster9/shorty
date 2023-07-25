@@ -3,9 +3,13 @@ package com.example.shorty.generator;
 import java.util.Random;
 
 public class StringGenerator {
+    public static String urlCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+
+    public static String passwordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]|,./?><{}";
+
     public static String generateUrl(String urlStart) {
         int stringSize = 7;
-        String urlCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+        //String urlCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
 
         StringBuilder randomString = new StringBuilder(stringSize);
         Random random = new Random();
@@ -21,7 +25,7 @@ public class StringGenerator {
 
     public static String generatePassword() {
         int passwordSize = 10;
-        String passwordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]|,./?><{}";
+        //String passwordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]|,./?><{}";
 
         StringBuilder randomString = new StringBuilder(passwordSize);
         Random random = new Random();

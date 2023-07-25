@@ -3,7 +3,7 @@ package com.example.shorty.token;
 import java.util.Base64;
 
 public class TokenEncoder {
-    private static final String basicTokenStart = "Basic ";
+    public static final String basicTokenStart = "Basic ";
 
     public static String encodeBasicToken(String id, String password) {
         String sensitive = id + ":" + password;

@@ -20,46 +20,32 @@ public class AccountService {
     public ResponseEntity<Object> addNewAccount(Map<String, Object> requestMap) {
         Object accountIdObject = requestMap.get("accountId");
         if (accountIdObject == null) {
-            return createRequestFailResponse("Failed - no 'accountId' field in request body");
+            return createDescriptionResponse("Failed - no 'accountId' field in request body");
         }
 
         String accountId = accountIdObject.toString();
 
         Account account = accountRepository.findAccountById(accountId);
         if (account != null) {
-            return createRegisterFailResponse();
+            return createRegisterResponse(false, "Account ID already exists!");
         }
 
         String password = StringGenerator.generatePassword();
         Account newAccount = new Account(accountId, password);
         accountRepository.save(newAccount);
 
-        return createRegisterSuccessResponse(password);
-    }
-
-    public ResponseEntity<Object> createRegisterFailResponse() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", false);
-        data.put("description", "Account ID already exists!");
-        return new ResponseEntity<>(data, HttpStatus.OK);
-    }
-
-    public ResponseEntity<Object> createRegisterSuccessResponse(String password) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", true);
-        data.put("password", password);
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return createRegisterResponse(true, password);
     }
 
     public ResponseEntity<Object> loginAccount(Map<String, Object> requestMap) {
         Object accountIdObject = requestMap.get("accountId");
         if (accountIdObject == null) {
-            return createRequestFailResponse("Failed - no 'accountId' field in request body");
+            return createDescriptionResponse("Failed - no 'accountId' field in request body");
         }
 
         Object passwordObject = requestMap.get("password");
         if (passwordObject == null) {
-            return createRequestFailResponse("Failed - no 'password' field in request body");
+            return createDescriptionResponse("Failed - no 'password' field in request body");
         }
 
         String accountId = accountIdObject.toString();
@@ -73,13 +59,26 @@ public class AccountService {
         return createSuccessStatusResponse(true);
     }
 
+    public ResponseEntity<Object> createRegisterResponse(boolean success, String helper) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("success", success);
+
+        if (success) {
+            data.put("password", helper);
+        }
+        else {
+            data.put("description", helper);
+        }
+        return new ResponseEntity<>(data, HttpStatus.OK);
+    }
+
     public ResponseEntity<Object> createSuccessStatusResponse(boolean isSuccessful) {
         Map<String, Object> data = new HashMap<>();
         data.put("success", isSuccessful);
         return new ResponseEntity<>(data, HttpStatus.OK);
     }
 
-    public ResponseEntity<Object> createRequestFailResponse(String description) {
+    public ResponseEntity<Object> createDescriptionResponse(String description) {
         Map<String, String> data = new HashMap<>();
         data.put("description", description);
         return new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
