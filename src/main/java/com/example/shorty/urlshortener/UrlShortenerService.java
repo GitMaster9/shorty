@@ -32,9 +32,19 @@ public class UrlShortenerService {
             return createShortResponse(false, "Failed - no 'url' field in request body");
         }
 
+        int redirectType;
+        Object redirectTypeObject = requestMap.get("redirectType");
+        if (redirectTypeObject == null) {
+            redirectType = 302;
+        }
+        else {
+            redirectType = (int) redirectTypeObject;
+        }
+
         String url = urlObject.toString();
         String shortUrl = generateShortUrl();
-        UrlShortener urlShortener = new UrlShortener(url, shortUrl, account.getAccountId(), 0);
+        String accountId = account.getAccountId();
+        UrlShortener urlShortener = new UrlShortener(url, shortUrl, accountId, redirectType, 0);
         urlShortenerRepository.save(urlShortener);
 
         return createShortResponse(true, urlShortener.getShortUrl());

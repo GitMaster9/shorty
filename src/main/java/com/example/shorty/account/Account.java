@@ -21,7 +21,6 @@ public class Account {
     private Long id;
     @Getter
     private String accountId;
-    @Getter
     private String password;
 
     public Account(String accountId, String password) {

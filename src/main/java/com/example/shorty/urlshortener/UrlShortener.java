@@ -3,6 +3,7 @@ package com.example.shorty.urlshortener;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
@@ -24,16 +25,20 @@ public class UrlShortener {
     @Getter
     private String url;
     @Getter
+    @Setter
     private String shortUrl;
     @Getter
     private String accountId;
     @Getter
+    private int redirectType;
+    @Getter
     private int redirects;
 
-    public UrlShortener(String url, String shortUrl, String accountId, int redirects) {
+    public UrlShortener(String url, String shortUrl, String accountId, int redirectType, int redirects) {
         this.url = url;
         this.shortUrl = shortUrl;
         this.accountId = accountId;
+        this.redirectType = redirectType;
         this.redirects = redirects;
     }
 
@@ -42,6 +47,10 @@ public class UrlShortener {
         this.accountId = accountId;
         this.redirects = redirects;
     }
+
+//    public UrlShortener(String url) {
+//        this.url = url;
+//    }
 
     public void incrementRedirects(int add) {
         redirects += add;

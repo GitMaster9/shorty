@@ -75,7 +75,46 @@ class UrlShortenerServiceTest {
     }
 
     @Test
-    void getShortURLTestSuccess() {
+    void getShortURLTestSuccess1() {
+        String accountId = "karlo";
+        String password = "password";
+        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        Map<String, Object> data = new HashMap<>();
+        data.put("url", "www.youtube.com");
+        data.put("redirectType", 301);
+
+        given(accountRepository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+
+        ResponseEntity<Object> responseEntity = underTest.getShortURL(token, data);
+
+        Object shortUrlObject = ResponseHandler.getDataFieldFromResponse(responseEntity, "shortUrl");
+        String shortUrl = "";
+        if (shortUrlObject != null) {
+            shortUrl = shortUrlObject.toString();
+        }
+
+        if (!shortUrl.startsWith("https://shorty.com/")) {
+            fail("short URL not valid - " + shortUrl);
+        }
+
+        shortUrl = shortUrl.replace("https://shorty.com/", "");
+
+        int urlEndSize = shortUrl.length();
+        assertThat(urlEndSize).isEqualTo(7);
+
+        boolean valid = true;
+        for (char letter : shortUrl.toCharArray()) {
+            if (!isLetter(letter) && !isDigit(letter)) {
+                valid = false;
+                break;
+            }
+        }
+
+        assertThat(valid).isEqualTo(true);
+    }
+
+    @Test
+    void getShortURLTestSuccess2() {
         String accountId = "karlo";
         String password = "password";
         String token = TokenEncoder.encodeBasicToken(accountId, password);
@@ -137,12 +176,12 @@ class UrlShortenerServiceTest {
     void getUniqueURLsTest() {
         List<UrlShortener> allURLs = new ArrayList<>();
 
-        UrlShortener test1 = new UrlShortener("www.google.com", "dummy1", "karlo", 1);
-        UrlShortener test2 = new UrlShortener("www.google.com", "dummy2", "karlo", 2);
-        UrlShortener test3 = new UrlShortener("www.youtube.com", "dummy3", "karlo", 4);
-        UrlShortener test4 = new UrlShortener("www.youtube.com", "dummy4", "karlo", 5);
-        UrlShortener test5 = new UrlShortener("www.facebook.com", "dummy5", "karlo", 7);
-        UrlShortener test6 = new UrlShortener("www.facebook.com", "dummy6", "karlo", 20);
+        UrlShortener test1 = new UrlShortener("www.google.com", "dummy1", "karlo", 302, 1);
+        UrlShortener test2 = new UrlShortener("www.google.com", "dummy2", "karlo", 302, 2);
+        UrlShortener test3 = new UrlShortener("www.youtube.com", "dummy3", "karlo", 302, 4);
+        UrlShortener test4 = new UrlShortener("www.youtube.com", "dummy4", "karlo", 302, 5);
+        UrlShortener test5 = new UrlShortener("www.facebook.com", "dummy5", "karlo", 302, 7);
+        UrlShortener test6 = new UrlShortener("www.facebook.com", "dummy6", "karlo", 302, 20);
         allURLs.add(test1);
         allURLs.add(test2);
         allURLs.add(test3);
@@ -209,7 +248,7 @@ class UrlShortenerServiceTest {
     void redirectUrlTest() {
         String shortUrl = "dummyshorturl";
 
-        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex",0));
+        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 0));
 
         UrlShortener urlShortenerStart = repository.findUrlShortenerByShortUrl(shortUrl);
         int redirectsStart = 0;
@@ -219,7 +258,7 @@ class UrlShortenerServiceTest {
 
         underTest.redirectUrl(shortUrl);
 
-        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex",1));
+        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 1));
         UrlShortener urlShortenerEnd = repository.findUrlShortenerByShortUrl(shortUrl);
         int redirectsEnd = 0;
         if (urlShortenerEnd != null) {
@@ -232,12 +271,12 @@ class UrlShortenerServiceTest {
     List<UrlShortener> getAllURLsExample() {
         List<UrlShortener> allURLs = new ArrayList<>();
 
-        UrlShortener test1 = new UrlShortener("www.google.com", "dummy1", "karlo", 1);
-        UrlShortener test2 = new UrlShortener("www.google.com", "dummy2", "karlo", 2);
-        UrlShortener test3 = new UrlShortener("www.youtube.com", "dummy3", "karlo", 4);
-        UrlShortener test4 = new UrlShortener("www.youtube.com", "dummy4", "karlo", 5);
-        UrlShortener test5 = new UrlShortener("www.facebook.com", "dummy5", "karlo", 7);
-        UrlShortener test6 = new UrlShortener("www.facebook.com", "dummy6", "karlo", 20);
+        UrlShortener test1 = new UrlShortener("www.google.com", "dummy1", "karlo", 302, 1);
+        UrlShortener test2 = new UrlShortener("www.google.com", "dummy2", "karlo", 302, 2);
+        UrlShortener test3 = new UrlShortener("www.youtube.com", "dummy3", "karlo", 302, 4);
+        UrlShortener test4 = new UrlShortener("www.youtube.com", "dummy4", "karlo", 302, 5);
+        UrlShortener test5 = new UrlShortener("www.facebook.com", "dummy5", "karlo", 302, 7);
+        UrlShortener test6 = new UrlShortener("www.facebook.com", "dummy6", "karlo", 302, 20);
         allURLs.add(test1);
         allURLs.add(test2);
         allURLs.add(test3);

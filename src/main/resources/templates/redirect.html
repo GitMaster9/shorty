@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Shorty</title>
+</head>
+<body>
+<div>
+    <h1>URL redirection</h1>
+    <form action="#" th:action="@{/redirect}" method="post" th:object="${urlShortener}">
+        <div>
+            <label>URL:</label>
+            <input type="text" th:field="*{shortUrl}" /><br/>
+            <button type="submit">Redirect</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
