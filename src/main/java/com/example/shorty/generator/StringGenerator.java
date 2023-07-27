@@ -7,7 +7,7 @@ public class StringGenerator {
 
     public static String passwordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]|,./?><{}";
 
-    public static String generateUrl(String urlStart) {
+    public static String generateUrl() {
         int stringSize = 7;
 
         StringBuilder randomString = new StringBuilder(stringSize);
@@ -19,7 +19,7 @@ public class StringGenerator {
             randomString.append(randomChar);
         }
 
-        return urlStart + randomString;
+        return randomString.toString();
     }
 
     public static String generatePassword() {

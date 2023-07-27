@@ -48,11 +48,11 @@ public class UrlShortener {
         this.redirects = redirects;
     }
 
-//    public UrlShortener(String url) {
-//        this.url = url;
-//    }
-
-    public void incrementRedirects(int add) {
+    public void addRedirects(int add) {
         redirects += add;
+    }
+
+    public void incrementRedirects() {
+        redirects += 1;
     }
 }

@@ -1,26 +1,22 @@
 package com.example.shorty.redirect;
 
-import com.example.shorty.urlshortener.UrlShortenerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
 @RestController
 @RequestMapping(path = "redirection")
 public class RedirectController {
-    private final UrlShortenerService urlShortenerService;
+
+    private final RedirectService redirectService;
 
     @Autowired
-    public RedirectController(UrlShortenerService urlShortenerService) {
-        this.urlShortenerService = urlShortenerService;
+    public RedirectController(RedirectService redirectService) {
+        this.redirectService = redirectService;
     }
 
-    @PostMapping(path = "test")
-    public void getShortURL(@RequestBody Map<String, Object> requestMap) {
-        Object shortUrlObject = requestMap.get("shortUrl");
-        if (shortUrlObject != null) {
-            String shortUrl = shortUrlObject.toString();
-            urlShortenerService.redirectUrl(shortUrl);
-        }
+    @GetMapping("get")
+    public ResponseEntity<Object> redirectURL(@RequestParam String shortUrl) {
+        return redirectService.getUrl(shortUrl);
     }
 }

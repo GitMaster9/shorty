@@ -8,21 +8,13 @@ class StringGeneratorTest {
 
     @Test
     void generateUrlTest() {
-        String urlStart = "https://shorty.com/";
+        String url = StringGenerator.generateUrl();
 
-        String url = StringGenerator.generateUrl(urlStart);
-
-        if (!url.startsWith(urlStart)) {
-            fail("short URL not valid - " + url);
-        }
-
-        String urlEnding = url.replace("https://shorty.com/", "");
-
-        int urlEndSize = urlEnding.length();
+        int urlEndSize = url.length();
         assertThat(urlEndSize).isEqualTo(7);
 
         boolean valid = true;
-        for (char letter : urlEnding.toCharArray()) {
+        for (char letter : url.toCharArray()) {
             if (StringGenerator.urlCharacters.indexOf(letter) == -1) {
                 valid = false;
                 break;

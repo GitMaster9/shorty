@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Shorty | Redirect</title>
+    <title>Shorty | Register</title>
 </head>
 <body>
 <div>
@@ -16,16 +16,18 @@
         </ul>
     </div>
     <div>
-        <h1>URL redirection</h1>
-        <form action="#" th:action="@{/geturl}" method="get" th:object="${urlShortener}">
+        <h1>Register</h1>
+        <form action="#" th:action="@{/register}" method="post" th:object="${account}">
             <div>
-                <label>URL:</label>
-                <input type="text" th:field="*{shortUrl}" />
+                <label>Account ID:</label>
+                <input type="text" th:field="*{accountId}"/>
                 <br/>
-                <button type="submit">Redirect</button>
+                <button type="submit">Register</button>
             </div>
         </form>
     </div>
+    <div th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" th:text="${errorMessage}"></div>
 </div>
 </body>
 </html>

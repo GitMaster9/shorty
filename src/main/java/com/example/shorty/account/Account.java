@@ -3,6 +3,7 @@ package com.example.shorty.account;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table
@@ -20,7 +21,10 @@ public class Account {
     )
     private Long id;
     @Getter
+    @Setter
     private String accountId;
+    @Getter
+    @Setter
     private String password;
 
     public Account(String accountId, String password) {

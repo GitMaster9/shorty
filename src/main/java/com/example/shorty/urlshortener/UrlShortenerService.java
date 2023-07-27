@@ -51,13 +51,11 @@ public class UrlShortenerService {
     }
 
     private String generateShortUrl() {
-        String urlStart = "https://shorty.com/";
-
         String shortUrl = null;
 
         boolean urlExists = true;
         while (urlExists) {
-            shortUrl = StringGenerator.generateUrl(urlStart);
+            shortUrl = StringGenerator.generateUrl();
             urlExists = checkIfShortUrlExists(shortUrl);
         }
 
@@ -106,7 +104,7 @@ public class UrlShortenerService {
                 String url = unique.getUrl();
                 if (url.equals(currentUrl)) {
                     int newRedirects = current.getRedirects();
-                    unique.incrementRedirects(newRedirects);
+                    unique.addRedirects(newRedirects);
                     foundUnique = true;
                     break;
                 }
@@ -141,13 +139,5 @@ public class UrlShortenerService {
         String password = decodedStrings[1];
 
         return accountRepository.findAccountByIdAndPassword(accountId, password);
-    }
-
-    public void redirectUrl(String shortUrl) {
-        UrlShortener urlShortener = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
-        if (urlShortener != null) {
-            urlShortener.incrementRedirects(1);
-            urlShortenerRepository.save(urlShortener);
-        }
     }
 }
