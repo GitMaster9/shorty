@@ -82,7 +82,7 @@ public class UrlShortenerService {
     public ResponseEntity<Object> getStatistics(String authorizationToken) {
         Account account = getAccountFromToken(authorizationToken);
         if (account == null) {
-            return createShortResponse(false, "Failed - Basic token is not valid");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
         List<UrlShortener> allURLs = urlShortenerRepository.findAllUrlShortenersByUser(account.getAccountId());

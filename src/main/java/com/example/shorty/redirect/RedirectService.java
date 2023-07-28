@@ -19,13 +19,11 @@ public class RedirectService {
     }
 
     public ResponseEntity<Object> getUrl(String shortUrl) {
-        System.out.println("RedirectService.getUrl()");
         UrlShortener urlShortener = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
         if (urlShortener == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        System.out.println("INKREMENTIRANJE");
         urlShortener.incrementRedirects();
         urlShortenerRepository.save(urlShortener);
 

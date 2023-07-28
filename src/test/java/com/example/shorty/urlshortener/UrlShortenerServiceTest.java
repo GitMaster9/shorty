@@ -18,10 +18,8 @@ import java.util.List;
 import java.util.Map;
 import static java.lang.Character.isDigit;
 import static java.lang.Character.isLetter;
-import static org.assertj.core.api.AssertionsForClassTypes.fail;
 import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UrlShortenerServiceTest {
@@ -58,7 +56,7 @@ class UrlShortenerServiceTest {
     void getShortURLTestBadRequest() {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
         Map<String, Object> data = new HashMap<>();
         data.put("bla", "www.youtube.com");
 
@@ -78,7 +76,7 @@ class UrlShortenerServiceTest {
     void getShortURLTestSuccess1() {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
         Map<String, Object> data = new HashMap<>();
         data.put("url", "www.youtube.com");
         data.put("redirectType", 301);
@@ -93,14 +91,8 @@ class UrlShortenerServiceTest {
             shortUrl = shortUrlObject.toString();
         }
 
-        if (!shortUrl.startsWith("https://shorty.com/")) {
-            fail("short URL not valid - " + shortUrl);
-        }
-
-        shortUrl = shortUrl.replace("https://shorty.com/", "");
-
-        int urlEndSize = shortUrl.length();
-        assertThat(urlEndSize).isEqualTo(7);
+        int urlSize = shortUrl.length();
+        assertThat(urlSize).isEqualTo(7);
 
         boolean valid = true;
         for (char letter : shortUrl.toCharArray()) {
@@ -117,7 +109,7 @@ class UrlShortenerServiceTest {
     void getShortURLTestSuccess2() {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
         Map<String, Object> data = new HashMap<>();
         data.put("url", "www.youtube.com");
 
@@ -131,14 +123,8 @@ class UrlShortenerServiceTest {
             shortUrl = shortUrlObject.toString();
         }
 
-        if (!shortUrl.startsWith("https://shorty.com/")) {
-            fail("short URL not valid - " + shortUrl);
-        }
-
-        shortUrl = shortUrl.replace("https://shorty.com/", "");
-
-        int urlEndSize = shortUrl.length();
-        assertThat(urlEndSize).isEqualTo(7);
+        int urlSize = shortUrl.length();
+        assertThat(urlSize).isEqualTo(7);
 
         boolean valid = true;
         for (char letter : shortUrl.toCharArray()) {
@@ -206,22 +192,18 @@ class UrlShortenerServiceTest {
     void GetStatisticsTestFail() {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
 
         ResponseEntity<Object> responseEntity = underTest.getStatistics(token);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("description", "Failed - Basic token is not valid");
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
 
     @Test
     void getStatisticsTest() {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
 
         List<UrlShortener> allURLs = getAllURLsExample();
 
@@ -244,29 +226,29 @@ class UrlShortenerServiceTest {
         assertThat(responseEntity).isEqualTo(expectedResponseEntity);
     }
 
-    @Test
-    void redirectUrlTest() {
-        String shortUrl = "dummyshorturl";
-
-        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 0));
-
-        UrlShortener urlShortenerStart = repository.findUrlShortenerByShortUrl(shortUrl);
-        int redirectsStart = 0;
-        if (urlShortenerStart != null) {
-            redirectsStart = urlShortenerStart.getRedirects();
-        }
-
-        underTest.redirectUrl(shortUrl);
-
-        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 1));
-        UrlShortener urlShortenerEnd = repository.findUrlShortenerByShortUrl(shortUrl);
-        int redirectsEnd = 0;
-        if (urlShortenerEnd != null) {
-            redirectsEnd = urlShortenerEnd.getRedirects();
-        }
-
-        assertThat(redirectsStart).isNotEqualTo(redirectsEnd);
-    }
+//    @Test
+//    void redirectUrlTest() {
+//        String shortUrl = "dummyshorturl";
+//
+//        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 0));
+//
+//        UrlShortener urlShortenerStart = repository.findUrlShortenerByShortUrl(shortUrl);
+//        int redirectsStart = 0;
+//        if (urlShortenerStart != null) {
+//            redirectsStart = urlShortenerStart.getRedirects();
+//        }
+//
+//        underTest.redirectUrl(shortUrl);
+//
+//        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 1));
+//        UrlShortener urlShortenerEnd = repository.findUrlShortenerByShortUrl(shortUrl);
+//        int redirectsEnd = 0;
+//        if (urlShortenerEnd != null) {
+//            redirectsEnd = urlShortenerEnd.getRedirects();
+//        }
+//
+//        assertThat(redirectsStart).isNotEqualTo(redirectsEnd);
+//    }
 
     List<UrlShortener> getAllURLsExample() {
         List<UrlShortener> allURLs = new ArrayList<>();

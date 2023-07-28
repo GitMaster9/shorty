@@ -48,6 +48,17 @@ public class UrlShortener {
         this.redirects = redirects;
     }
 
+    public UrlShortener(String url, int redirectType, String accountId) {
+        this.url = url;
+        this.redirectType = redirectType;
+        this.accountId = accountId;
+    }
+
+    public UrlShortener(String url, int redirects) {
+        this.url = url;
+        this.redirects = redirects;
+    }
+
     public void addRedirects(int add) {
         redirects += add;
     }

@@ -5,11 +5,17 @@ import java.util.Base64;
 public class TokenEncoder {
     public static final String basicTokenStart = "Basic ";
 
-    public static String encodeBasicToken(String id, String password) {
+    public static String getBasicAuthorizationToken(String id, String password) {
         String sensitive = id + ":" + password;
         String encoded = Base64.getEncoder().encodeToString(sensitive.getBytes());
 
         return basicTokenStart + encoded;
+    }
+
+    public static String encodeCredentials(String id, String password) {
+        String sensitive = id + ":" + password;
+
+        return Base64.getEncoder().encodeToString(sensitive.getBytes());
     }
 
     public static String[] decodeBasicToken(String token) {

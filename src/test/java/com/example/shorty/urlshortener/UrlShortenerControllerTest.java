@@ -41,7 +41,7 @@ class UrlShortenerControllerTest {
     void getShortURLTest() throws Exception {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
 
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("url", "www.google.com");
@@ -68,7 +68,7 @@ class UrlShortenerControllerTest {
     void getUserStatisticsTest() throws Exception {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeBasicToken(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
 
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("www.google.com", 10);

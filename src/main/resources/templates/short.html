@@ -17,21 +17,26 @@
     </div>
     <div>
         <h1>Short URL</h1>
-        <form>
+        <form action="#" th:action="@{/short}" method="post" th:object="${shortingRequest}">
             <div>
                 <label>Account ID:</label>
-                <input type="text"/>
+                <input type="text" th:field="*{accountId}"/>
                 <br/>
                 <label>Password:</label>
-                <input type="password"/>
+                <input type="password" th:field="*{password}"/>
                 <br/>
                 <label>URL:</label>
-                <input type="text"/>
+                <input type="text" th:field="*{url}"/>
+                <br/>
+                <label>Redirect type:</label>
+                <input type="text" th:field="*{redirectType}"/>
                 <br/>
                 <button type="submit">Short URL</button>
             </div>
         </form>
     </div>
+    <div th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" th:text="${errorMessage}"></div>
 </div>
 </body>
 </html>
