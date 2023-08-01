@@ -1,8 +1,9 @@
 package com.example.shorty.redirect;
 
-import com.example.shorty.responsehandler.ResponseHandler;
-import com.example.shorty.urlshortener.UrlShortener;
-import com.example.shorty.urlshortener.UrlShortenerRepository;
+import com.example.shorty.service.RedirectService;
+import com.example.shorty.utils.ResponseHandler;
+import com.example.shorty.restapi.UrlShortener;
+import com.example.shorty.repository.UrlShortenerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,7 +41,8 @@ class RedirectServiceTest {
         String url = "https://minecraft.fandom.com/wiki/Minecraft_Wiki";
         int redirectType = 302;
 
-        given(urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl)).willReturn(new UrlShortener(url, redirectType, "karlo"));
+        //given(urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl)).willReturn(new UrlShortener(url, redirectType, "karlo")); // findByShortUrl
+        given(urlShortenerRepository.findByShortUrl(shortUrl)).willReturn(new UrlShortener(url, redirectType, "karlo"));
         ResponseEntity<Object> responseEntity = underTest.getUrl(shortUrl);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);

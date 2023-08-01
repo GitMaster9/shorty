@@ -1,9 +1,12 @@
-package com.example.shorty.urlshortener;
+package com.example.shorty.service;
 
-import com.example.shorty.account.Account;
-import com.example.shorty.account.AccountRepository;
-import com.example.shorty.generator.StringGenerator;
-import com.example.shorty.token.TokenEncoder;
+import com.example.shorty.repository.UrlShortenerRepository;
+import com.example.shorty.restapi.Account;
+import com.example.shorty.repository.AccountRepository;
+import com.example.shorty.restapi.UrlShortener;
+import com.example.shorty.utils.StringGenerator;
+import com.example.shorty.utils.StringGeneratorType;
+import com.example.shorty.utils.TokenEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,15 +24,15 @@ public class UrlShortenerService {
         this.accountRepository = accountRepository;
     }
 
-    public ResponseEntity<Object> getShortURL(String authorizationToken, Map<String, Object> requestMap) {
+    public String getShortURL(String authorizationToken, Map<String, Object> requestMap) {
         Account account = getAccountFromToken(authorizationToken);
         if (account == null) {
-            return createShortResponse(false, "Failed - Basic token is not valid");
+            return null;
         }
 
         Object urlObject = requestMap.get("url");
         if (urlObject == null) {
-            return createShortResponse(false, "Failed - no 'url' field in request body");
+            return null;
         }
 
         int redirectType;
@@ -47,7 +50,7 @@ public class UrlShortenerService {
         UrlShortener urlShortener = new UrlShortener(url, shortUrl, accountId, redirectType, 0);
         urlShortenerRepository.save(urlShortener);
 
-        return createShortResponse(true, urlShortener.getShortUrl());
+        return urlShortener.getShortUrl();
     }
 
     private String generateShortUrl() {
@@ -55,7 +58,7 @@ public class UrlShortenerService {
 
         boolean urlExists = true;
         while (urlExists) {
-            shortUrl = StringGenerator.generateUrl();
+            shortUrl = StringGenerator.generateRandomString(StringGeneratorType.URL);
             urlExists = checkIfShortUrlExists(shortUrl);
         }
 
@@ -63,7 +66,7 @@ public class UrlShortenerService {
     }
 
     private boolean checkIfShortUrlExists(String shortUrl) {
-        UrlShortener urlShortener = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
+        UrlShortener urlShortener = urlShortenerRepository.findByShortUrl(shortUrl);
 
         return urlShortener != null;
     }
@@ -85,7 +88,7 @@ public class UrlShortenerService {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        List<UrlShortener> allURLs = urlShortenerRepository.findAllUrlShortenersByUser(account.getAccountId());
+        List<UrlShortener> allURLs = urlShortenerRepository.findByAccountId(account.getAccountId());
 
         List<UrlShortener> uniqueURLs = getUniqueURLs(allURLs);
         Map<String, Object> data = getUniqueURLsData(uniqueURLs);
@@ -132,12 +135,12 @@ public class UrlShortenerService {
     }
 
     public Account getAccountFromToken(String token) {
-        if (!token.startsWith(TokenEncoder.basicTokenStart)) return null;
+        if (!token.startsWith(TokenEncoder.BASIC_TOKEN_START)) return null;
 
         String[] decodedStrings = TokenEncoder.decodeBasicToken(token);
         String accountId = decodedStrings[0];
         String password = decodedStrings[1];
 
-        return accountRepository.findAccountByIdAndPassword(accountId, password);
+        return accountRepository.findByAccountIdAndPassword(accountId, password);
     }
 }

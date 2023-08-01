@@ -1,5 +1,7 @@
 package com.example.shorty.urlshortener;
 
+import com.example.shorty.repository.UrlShortenerRepository;
+import com.example.shorty.restapi.UrlShortener;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -20,7 +22,7 @@ class UrlShortenerRepositoryTest {
         underTest.save(newUrlShortener);
 
         // when
-        UrlShortener exists = underTest.findUrlShortenerByShortUrl(shortUrl);
+        UrlShortener exists = underTest.findByShortUrl(shortUrl);
 
         // then
         assertThat(exists).isEqualTo(newUrlShortener);
@@ -32,7 +34,7 @@ class UrlShortenerRepositoryTest {
         String shortUrl = "www.shorty.com";
 
         // when
-        UrlShortener exists = underTest.findUrlShortenerByShortUrl(shortUrl);
+        UrlShortener exists = underTest.findByShortUrl(shortUrl);
 
         // then
         assertThat(exists).isNull();
@@ -57,7 +59,7 @@ class UrlShortenerRepositoryTest {
         underTest.save(url5);
 
         // when
-        List<UrlShortener> allUrls = underTest.findAllUrlShortenersByUser(accountId);
+        List<UrlShortener> allUrls = underTest.findByAccountId(accountId);
         int result = allUrls.size();
 
         // then

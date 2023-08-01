@@ -1,8 +1,6 @@
-package com.example.shorty.frontend;
+package com.example.shorty.restapi;
 
-import com.example.shorty.account.Account;
-import com.example.shorty.token.TokenEncoder;
-import com.example.shorty.urlshortener.UrlShortener;
+import com.example.shorty.utils.TokenEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.ArrayList;
@@ -21,44 +18,42 @@ import java.util.Map;
 @Controller
 public class FrontendController {
 
-    private final String urlApiBase = "http://localhost:8080/";
-    @GetMapping("register")
+    @GetMapping(ControllerPath.REGISTER)
     public String showRegisterPage(Account account, Model model) {
         return "register";
     }
 
-    @GetMapping("login")
+    @GetMapping(ControllerPath.LOGIN)
     public String showLoginPage(Account account, Model model) {
         return "login";
     }
 
-    @GetMapping("short")
+    @GetMapping(ControllerPath.SHORT)
     public String showShortPage(ShortingRequest shortingRequest, Model model) {
         return "short";
     }
 
-    @GetMapping("statistics")
+    @GetMapping(ControllerPath.STATISTICS)
     public String showStatisticsPage(Account account, Model model) {
         return "statistics";
     }
 
-    @GetMapping("redirect")
+    @GetMapping(ControllerPath.REDIRECT)
     public String showRedirectPage(UrlShortener urlShortener) {
         return "redirect";
     }
 
-    @PostMapping("register")
+    @PostMapping(ControllerPath.REGISTER)
     public String registerUser(@ModelAttribute Account account, Model model) {
         String accountId = account.getAccountId();
 
-        String urlApi = "administration/register";
-        WebClient client = WebClient.create(urlApiBase);
+        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
 
         Map<String, String> data = new HashMap<>();
         data.put("accountId", accountId);
 
         WebClient.ResponseSpec responseSpec = client.post()
-                .uri(urlApi)
+                .uri(ControllerPath.ADMINISTRATION_REGISTER)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(data), HashMap.class)
                 .retrieve()
@@ -87,20 +82,19 @@ public class FrontendController {
         return "register";
     }
 
-    @PostMapping("login")
+    @PostMapping(ControllerPath.LOGIN)
     public String loginUser(@ModelAttribute Account account, Model model) {
         String accountId = account.getAccountId();
         String password = account.getPassword();
 
-        String urlApi = "administration/login";
-        WebClient client = WebClient.create(urlApiBase);
+        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
 
         Map<String, String> data = new HashMap<>();
         data.put("accountId", accountId);
         data.put("password", password);
 
         WebClient.ResponseSpec responseSpec = client.post()
-                .uri(urlApi)
+                .uri(ControllerPath.ADMINISTRATION_LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(data), HashMap.class)
                 .retrieve()
@@ -127,7 +121,7 @@ public class FrontendController {
         return "login";
     }
 
-    @PostMapping("short")
+    @PostMapping(ControllerPath.SHORT)
     public String shortUrl(ShortingRequest shortingRequest, Model model) {
         String accountId = shortingRequest.getAccountId();
         String password = shortingRequest.getPassword();
@@ -153,11 +147,10 @@ public class FrontendController {
         data.put("url", url);
         data.put("redirectType", redirectType);
 
-        String urlApi = "administration/short";
-        WebClient client = WebClient.create(urlApiBase);
+        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
 
         WebClient.ResponseSpec responseSpec = client.post()
-                .uri(urlApi)
+                .uri(ControllerPath.ADMINISTRATION_SHORT)
                 .headers(httpHeaders -> httpHeaders.setBasicAuth(token))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(data), HashMap.class)
@@ -191,17 +184,16 @@ public class FrontendController {
         return "short";
     }
 
-    @PostMapping("statistics")
+    @PostMapping(ControllerPath.STATISTICS)
     public String getStatistics(Account account, Model model) {
         String accountId = account.getAccountId();
         String password = account.getPassword();
         String token = TokenEncoder.encodeCredentials(accountId, password);
 
-        String urlApi = "administration/statistics";
-        WebClient client = WebClient.create(urlApiBase);
+        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
 
         WebClient.ResponseSpec responseSpec = client.get()
-                .uri(urlApi)
+                .uri(ControllerPath.ADMINISTRATION_STATISTICS)
                 .headers(httpHeaders -> httpHeaders.setBasicAuth(token))
                 .retrieve()
                 .onStatus(
@@ -234,12 +226,13 @@ public class FrontendController {
         return "statistics";
     }
 
-    @GetMapping("geturl")
+    @GetMapping(ControllerPath.GET_URL)
     public ResponseEntity<Void> redirectShortURLGet(@ModelAttribute UrlShortener urlShortener) {
         String shortUrl = urlShortener.getShortUrl();
+        System.out.println(shortUrl);
 
-        String urlApi = "redirection/get?shortUrl=" + shortUrl;
-        WebClient client = WebClient.create(urlApiBase);
+        String urlApi = ControllerPath.REDIRECTION_SHORT_URL + shortUrl;
+        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
 
         WebClient.ResponseSpec responseSpec = client.get()
                 .uri(urlApi)

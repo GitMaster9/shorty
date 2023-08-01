@@ -1,6 +1,9 @@
 package com.example.shorty.urlshortener;
 
-import com.example.shorty.token.TokenEncoder;
+import com.example.shorty.restapi.ControllerPath;
+import com.example.shorty.restapi.UrlShortenerController;
+import com.example.shorty.service.UrlShortenerService;
+import com.example.shorty.utils.TokenEncoder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
@@ -46,15 +49,11 @@ class UrlShortenerControllerTest {
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("url", "www.google.com");
 
-        Map<String, Object> responseMap = new HashMap<>();
         String shortUrl = "www.shorty.com/fake";
-        responseMap.put("shortUrl", shortUrl);
 
-        ResponseEntity<Object> responseEntity = new ResponseEntity<>(responseMap, HttpStatus.OK);
+        given(urlShortenerService.getShortURL(token, requestMap)).willReturn(shortUrl);
 
-        given(urlShortenerService.getShortURL(token, requestMap)).willReturn(responseEntity);
-
-        ResultActions response = mockMvc.perform(post("/administration/short")
+        ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
                         .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestMap)));
@@ -79,7 +78,7 @@ class UrlShortenerControllerTest {
 
         given(urlShortenerService.getStatistics(token)).willReturn(responseEntity);
 
-        ResultActions response = mockMvc.perform(get("/administration/statistics")
+        ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON));
 

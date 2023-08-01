@@ -1,37 +1,31 @@
-package com.example.shorty.urlshortener;
+package com.example.shorty.restapi;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Table
 @NoArgsConstructor
-@ToString
+@Getter
+@Setter
 public class UrlShortener {
     @Id
     @SequenceGenerator(
-            name = "urlshortener_sequence",
-            sequenceName = "urlshortener_sequence",
+            name = TableConstant.UrlShortenerSequence,
+            sequenceName = TableConstant.UrlShortenerSequence,
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "urlshortener_sequence"
+            generator = TableConstant.UrlShortenerSequence
     )
     private Long id;
-    @Getter
     private String url;
-    @Getter
-    @Setter
     private String shortUrl;
-    @Getter
     private String accountId;
-    @Getter
     private int redirectType;
-    @Getter
     private int redirects;
 
     public UrlShortener(String url, String shortUrl, String accountId, int redirectType, int redirects) {

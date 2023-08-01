@@ -1,4 +1,4 @@
-package com.example.shorty.frontend;
+package com.example.shorty.restapi;
 
 import lombok.*;
 

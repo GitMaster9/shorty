@@ -1,5 +1,7 @@
 package com.example.shorty.redirect;
 
+import com.example.shorty.restapi.RedirectController;
+import com.example.shorty.service.RedirectService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

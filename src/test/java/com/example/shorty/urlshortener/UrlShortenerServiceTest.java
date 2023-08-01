@@ -1,9 +1,11 @@
 package com.example.shorty.urlshortener;
 
-import com.example.shorty.account.Account;
-import com.example.shorty.account.AccountRepository;
-import com.example.shorty.responsehandler.ResponseHandler;
-import com.example.shorty.token.TokenEncoder;
+import com.example.shorty.repository.UrlShortenerRepository;
+import com.example.shorty.restapi.Account;
+import com.example.shorty.repository.AccountRepository;
+import com.example.shorty.restapi.UrlShortener;
+import com.example.shorty.service.UrlShortenerService;
+import com.example.shorty.utils.TokenEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,14 +44,9 @@ class UrlShortenerServiceTest {
         Map<String, Object> data = new HashMap<>();
         data.put("url", "www.youtube.com");
 
-        ResponseEntity<Object> responseEntity = underTest.getShortURL(token, data);
+        String shortUrl = underTest.getShortURL(token, data);
 
-        Map<String, Object> dataExpected = new HashMap<>();
-        dataExpected.put("description", "Failed - Basic token is not valid");
-
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(dataExpected, HttpStatus.OK);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+        assertThat(shortUrl).isEqualTo(null);
     }
 
     @Test
@@ -60,16 +57,10 @@ class UrlShortenerServiceTest {
         Map<String, Object> data = new HashMap<>();
         data.put("bla", "www.youtube.com");
 
-        given(accountRepository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+        given(accountRepository.findByAccountIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+        String shortUrl = underTest.getShortURL(token, data);
 
-        ResponseEntity<Object> responseEntity = underTest.getShortURL(token, data);
-
-        Map<String, Object> dataExpected = new HashMap<>();
-        dataExpected.put("description", "Failed - no 'url' field in request body");
-
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(dataExpected, HttpStatus.OK);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+        assertThat(shortUrl).isEqualTo(null);
     }
 
     @Test
@@ -81,15 +72,9 @@ class UrlShortenerServiceTest {
         data.put("url", "www.youtube.com");
         data.put("redirectType", 301);
 
-        given(accountRepository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+        given(accountRepository.findByAccountIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
 
-        ResponseEntity<Object> responseEntity = underTest.getShortURL(token, data);
-
-        Object shortUrlObject = ResponseHandler.getDataFieldFromResponse(responseEntity, "shortUrl");
-        String shortUrl = "";
-        if (shortUrlObject != null) {
-            shortUrl = shortUrlObject.toString();
-        }
+        String shortUrl = underTest.getShortURL(token, data);
 
         int urlSize = shortUrl.length();
         assertThat(urlSize).isEqualTo(7);
@@ -113,15 +98,8 @@ class UrlShortenerServiceTest {
         Map<String, Object> data = new HashMap<>();
         data.put("url", "www.youtube.com");
 
-        given(accountRepository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
-
-        ResponseEntity<Object> responseEntity = underTest.getShortURL(token, data);
-
-        Object shortUrlObject = ResponseHandler.getDataFieldFromResponse(responseEntity, "shortUrl");
-        String shortUrl = "";
-        if (shortUrlObject != null) {
-            shortUrl = shortUrlObject.toString();
-        }
+        given(accountRepository.findByAccountIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+        String shortUrl = underTest.getShortURL(token, data);
 
         int urlSize = shortUrl.length();
         assertThat(urlSize).isEqualTo(7);
@@ -207,8 +185,8 @@ class UrlShortenerServiceTest {
 
         List<UrlShortener> allURLs = getAllURLsExample();
 
-        given(accountRepository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
-        given(repository.findAllUrlShortenersByUser(accountId)).willReturn(allURLs);
+        given(accountRepository.findByAccountIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+        given(repository.findByAccountId(accountId)).willReturn(allURLs);
 
         ResponseEntity<Object> responseEntity = underTest.getStatistics(token);
 
@@ -225,30 +203,6 @@ class UrlShortenerServiceTest {
 
         assertThat(responseEntity).isEqualTo(expectedResponseEntity);
     }
-
-//    @Test
-//    void redirectUrlTest() {
-//        String shortUrl = "dummyshorturl";
-//
-//        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 0));
-//
-//        UrlShortener urlShortenerStart = repository.findUrlShortenerByShortUrl(shortUrl);
-//        int redirectsStart = 0;
-//        if (urlShortenerStart != null) {
-//            redirectsStart = urlShortenerStart.getRedirects();
-//        }
-//
-//        underTest.redirectUrl(shortUrl);
-//
-//        when(repository.findUrlShortenerByShortUrl(shortUrl)).thenReturn(new UrlShortener("www.youtube.com", shortUrl, "alex", 302, 1));
-//        UrlShortener urlShortenerEnd = repository.findUrlShortenerByShortUrl(shortUrl);
-//        int redirectsEnd = 0;
-//        if (urlShortenerEnd != null) {
-//            redirectsEnd = urlShortenerEnd.getRedirects();
-//        }
-//
-//        assertThat(redirectsStart).isNotEqualTo(redirectsEnd);
-//    }
 
     List<UrlShortener> getAllURLsExample() {
         List<UrlShortener> allURLs = new ArrayList<>();

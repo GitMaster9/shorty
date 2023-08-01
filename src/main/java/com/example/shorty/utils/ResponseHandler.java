@@ -1,7 +1,6 @@
-package com.example.shorty.responsehandler;
+package com.example.shorty.utils;
 
 import org.springframework.http.ResponseEntity;
-
 import java.util.HashMap;
 
 public class ResponseHandler {

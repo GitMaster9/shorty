@@ -1,6 +1,9 @@
 package com.example.shorty.account;
 
-import com.example.shorty.responsehandler.ResponseHandler;
+import com.example.shorty.repository.AccountRepository;
+import com.example.shorty.restapi.Account;
+import com.example.shorty.service.AccountService;
+import com.example.shorty.utils.ResponseHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +18,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class AccountServiceTest {
-
     @Mock
     private AccountRepository repository;
     private AccountService underTest;
@@ -32,14 +34,10 @@ class AccountServiceTest {
         requestMap.put("account", "karlo1");
 
         // when
-        ResponseEntity<Object> responseEntity = underTest.addNewAccount(requestMap);
+        Account account = underTest.addNewAccount(requestMap);
 
         // then
-        Map<String, String> data = new HashMap<>();
-        data.put("description", "Failed - no 'accountId' field in request body");
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+        assertThat(account).isNull();
     }
 
     @Test
@@ -50,52 +48,24 @@ class AccountServiceTest {
         requestMap.put("accountId", accountId);
 
         // when
-        ResponseEntity<Object> responseEntity = underTest.addNewAccount(requestMap);
-        Object success = ResponseHandler.getDataFieldFromResponse(responseEntity, "success");
+        Account account = underTest.addNewAccount(requestMap);
 
         // then
-        assertThat(success).isEqualTo(true);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(account).isNotNull();
     }
 
     @Test
     void addNewAccountTestFail() {
         // given
         String accountId = "karlo1";
+        String password = "password";
         Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("accountId", accountId);
 
-        given(repository.findAccountById(accountId)).willReturn(new Account(accountId, "password"));
-        ResponseEntity<Object> responseEntity = underTest.addNewAccount(requestMap);
+        given(repository.findByAccountId(accountId)).willReturn(new Account(accountId, password));
+        Account account = underTest.addNewAccount(requestMap);
 
-        Object success = ResponseHandler.getDataFieldFromResponse(responseEntity, "success");
-        assertThat(success).isEqualTo(false);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    void createRegisterResponseTest() {
-        // Test for fail
-        String description = "Account ID already exists!";
-        ResponseEntity<Object> responseEntity = underTest.createRegisterResponse(false, description);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", false);
-        data.put("description", description);
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
-
-        // Test for success
-        String password = "dummypassword";
-        responseEntity = underTest.createRegisterResponse(true, password);
-
-        data = new HashMap<>();
-        data.put("success", true);
-        data.put("password", password);
-        expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+        assertThat(account).isNull();
     }
 
     @Test
@@ -106,14 +76,10 @@ class AccountServiceTest {
         requestMap.put("password", "pwd");
 
         // when
-        ResponseEntity<Object> responseEntity = underTest.loginAccount(requestMap);
+        boolean success = underTest.loginAccount(requestMap);
 
         // then
-        Map<String, String> data = new HashMap<>();
-        data.put("description", "Failed - no 'accountId' field in request body");
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+        assertThat(success).isEqualTo(false);
     }
 
     @Test
@@ -124,14 +90,10 @@ class AccountServiceTest {
         requestMap.put("pwd", "pwd");
 
         // when
-        ResponseEntity<Object> responseEntity = underTest.loginAccount(requestMap);
+        boolean success = underTest.loginAccount(requestMap);
 
         // then
-        Map<String, String> data = new HashMap<>();
-        data.put("description", "Failed - no 'password' field in request body");
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
+        assertThat(success).isEqualTo(false);
     }
 
     @Test
@@ -144,12 +106,10 @@ class AccountServiceTest {
         requestMap.put("password", password);
 
         // when
-        ResponseEntity<Object> responseEntity = underTest.loginAccount(requestMap);
+        boolean success = underTest.loginAccount(requestMap);
 
         // then
-        Object success = ResponseHandler.getDataFieldFromResponse(responseEntity, "success");
         assertThat(success).isEqualTo(false);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
@@ -162,36 +122,11 @@ class AccountServiceTest {
         requestMap.put("password", password);
 
         // when
-        given(repository.findAccountByIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
-        ResponseEntity<Object> responseEntity = underTest.loginAccount(requestMap);
+        given(repository.findByAccountIdAndPassword(accountId, password)).willReturn(new Account(accountId, password));
+
+        boolean success = underTest.loginAccount(requestMap);
 
         // then
-        Object success = ResponseHandler.getDataFieldFromResponse(responseEntity, "success");
         assertThat(success).isEqualTo(true);
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    void createSuccessStatusResponseTest() {
-        boolean success = false;
-        ResponseEntity<Object> responseEntity = underTest.createSuccessStatusResponse(success);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("success", success);
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.OK);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
-    }
-
-    @Test
-    void createRequestFailResponseTest() {
-        String description = "some description";
-        ResponseEntity<Object> responseEntity = underTest.createDescriptionResponse(description);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("description", description);
-        ResponseEntity<Object> expectedResponseEntity = new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
-
-        assertThat(responseEntity).isEqualTo(expectedResponseEntity);
     }
 }

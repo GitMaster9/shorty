@@ -1,7 +1,7 @@
-package com.example.shorty.redirect;
+package com.example.shorty.service;
 
-import com.example.shorty.urlshortener.UrlShortener;
-import com.example.shorty.urlshortener.UrlShortenerRepository;
+import com.example.shorty.restapi.UrlShortener;
+import com.example.shorty.repository.UrlShortenerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class RedirectService {
     }
 
     public ResponseEntity<Object> getUrl(String shortUrl) {
-        UrlShortener urlShortener = urlShortenerRepository.findUrlShortenerByShortUrl(shortUrl);
+        UrlShortener urlShortener = urlShortenerRepository.findByShortUrl(shortUrl);
         if (urlShortener == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

@@ -1,5 +1,7 @@
 package com.example.shorty.generator;
 
+import com.example.shorty.utils.StringGenerator;
+import com.example.shorty.utils.StringGeneratorType;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -7,7 +9,7 @@ class StringGeneratorTest {
 
     @Test
     void generateUrlTest() {
-        String url = StringGenerator.generateUrl();
+        String url = StringGenerator.generateRandomString(StringGeneratorType.URL);
 
         int urlEndSize = url.length();
         assertThat(urlEndSize).isEqualTo(7);
@@ -25,7 +27,7 @@ class StringGeneratorTest {
 
     @Test
     void generatePasswordTest() {
-        String password = StringGenerator.generatePassword();
+        String password = StringGenerator.generateRandomString(StringGeneratorType.PASSWORD);
 
         int urlEndSize = password.length();
         assertThat(urlEndSize).isEqualTo(10);
