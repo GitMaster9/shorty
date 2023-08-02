@@ -28,31 +28,6 @@ public class UrlShortener {
     private int redirectType;
     private int redirects;
 
-    public UrlShortener(String url, String shortUrl, String accountId, int redirectType, int redirects) {
-        this.url = url;
-        this.shortUrl = shortUrl;
-        this.accountId = accountId;
-        this.redirectType = redirectType;
-        this.redirects = redirects;
-    }
-
-    public UrlShortener(String url, String accountId, int redirects) {
-        this.url = url;
-        this.accountId = accountId;
-        this.redirects = redirects;
-    }
-
-    public UrlShortener(String url, int redirectType, String accountId) {
-        this.url = url;
-        this.redirectType = redirectType;
-        this.accountId = accountId;
-    }
-
-    public UrlShortener(String url, int redirects) {
-        this.url = url;
-        this.redirects = redirects;
-    }
-
     public void addRedirects(int add) {
         redirects += add;
     }

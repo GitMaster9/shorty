@@ -9,7 +9,7 @@ import java.beans.ConstructorProperties;
 @Getter
 @Setter
 @NoArgsConstructor
-@RequiredArgsConstructor(onConstructor_ = @ConstructorProperties({"accountId", "password"}))
+@RequiredArgsConstructor(onConstructor_ = @ConstructorProperties({"accountId", "password"})) // maknuti ovo
 public class Account {
     @Id
     @SequenceGenerator(

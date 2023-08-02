@@ -213,7 +213,10 @@ public class FrontendController {
         for (Object urlObject : response.keySet()) {
             String url = urlObject.toString();
             int redirects = (int) response.get(url);
-            UrlShortener newUrl = new UrlShortener(url, redirects);
+            //UrlShortener newUrl = new UrlShortener(url, redirects);
+            UrlShortener newUrl = new UrlShortener();
+            newUrl.setUrl(url);
+            newUrl.setRedirects(redirects);
             receivedURLs.add(newUrl);
         }
 

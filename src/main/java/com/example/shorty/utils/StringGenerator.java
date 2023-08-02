@@ -5,6 +5,8 @@ import java.util.Random;
 public class StringGenerator {
     public static final String urlCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String passwordCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz!@#$%&*()_+-=[]|,./?><{}";
+    public static final int urlStringSize = 7;
+    public static final int passwordStringSize = 10;
 
     public static String generateRandomString(StringGeneratorType stringGeneratorType) {
         int stringSize = 0;
@@ -12,17 +14,17 @@ public class StringGenerator {
 
         switch (stringGeneratorType) {
             case PASSWORD -> {
-                stringSize = 10;
+                stringSize = passwordStringSize;
                 charactersToUse = passwordCharacters;
             }
             case URL -> {
-                stringSize = 7;
+                stringSize = urlStringSize;
                 charactersToUse = urlCharacters;
             }
         }
 
-        StringBuilder randomString = new StringBuilder(stringSize);
-        Random random = new Random();
+        final StringBuilder randomString = new StringBuilder(stringSize);
+        final Random random = new Random();
 
         for (int i = 0; i < stringSize; i++) {
             int randomIndex = random.nextInt(charactersToUse.length());

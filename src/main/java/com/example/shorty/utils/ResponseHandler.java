@@ -11,6 +11,7 @@ public class ResponseHandler {
             return null;
         }
 
+        @SuppressWarnings("rawtypes")
         HashMap responseData = (HashMap) responseBody;
 
         return responseData.get(dataFieldName);

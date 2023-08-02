@@ -1,12 +1,15 @@
 package com.example.shorty.restapi;
 
+import com.example.shorty.exception.ApiBadRequestException;
+import com.example.shorty.exception.ApiUnauthorizedException;
+import com.example.shorty.exception.ExceptionMessages;
 import com.example.shorty.service.UrlShortenerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,23 +23,53 @@ public class UrlShortenerController {
     }
 
     @PostMapping(path = ControllerPath.SHORT)
-    public ResponseEntity<Object> getShortURL(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken, @RequestBody Map<String, Object> requestMap) {
-        String shortUrl = urlShortenerService.getShortURL(authorizationToken, requestMap);
+    public ResponseEntity<Map<String, Object>> shortURL(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken, @RequestBody Map<String, Object> requestMap) {
+        final Account account = urlShortenerService.getAccountFromToken(authorizationToken);
+        if (account == null) {
+            throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
+        }
 
-        Map<String, Object> data = new HashMap<>();
+        Object urlObject = requestMap.get("url");
+        if (urlObject == null) {
+            throw new ApiBadRequestException(ExceptionMessages.MISSING_URL);
+        }
 
-        if (shortUrl != null) {
-            data.put("shortUrl", shortUrl);
+        String url = urlObject.toString();
+
+        int redirectType;
+        Object redirectTypeObject = requestMap.get("redirectType");
+        if (redirectTypeObject == null) {
+            redirectType = 302;
         }
         else {
-            data.put("description", "ERROR: shortUrl == null");
+            redirectType = (int) redirectTypeObject;
         }
 
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        String shortUrl = urlShortenerService.shortURL(account, url, redirectType);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("shortUrl", shortUrl);
+
+        return ResponseEntity.ok(data);
     }
 
     @GetMapping(path = ControllerPath.STATISTICS)
-    public ResponseEntity<Object> getUserStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
-        return urlShortenerService.getStatistics(authorizationToken);
+    public ResponseEntity<Map<String, Object>> getStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
+        final Account account = urlShortenerService.getAccountFromToken(authorizationToken);
+        if (account == null) {
+            throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
+        }
+
+        List<UrlShortener> uniqueURLs = urlShortenerService.getStatistics(account.getAccountId());
+
+        Map<String, Object> data = new HashMap<>();
+
+        for (UrlShortener unique : uniqueURLs) {
+            String url = unique.getUrl();
+            int redirects = unique.getRedirects();
+            data.put(url, redirects);
+        }
+
+        return ResponseEntity.ok(data);
     }
 }

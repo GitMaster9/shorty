@@ -3,13 +3,13 @@ package com.example.shorty.restapi;
 public class ControllerPath {
     public final static String API_URL_BASE = "http://localhost:8080";
 
-    public final static String ADMINISTRATION = "administration";
-    public final static String REGISTER = "register";
-    public final static String LOGIN = "login";
-    public final static String SHORT = "short";
-    public final static String STATISTICS = "statistics";
-    public final static String REDIRECTION = "redirection";
-    public final static String REDIRECT = "redirect";
+    public final static String ADMINISTRATION = "/administration";
+    public final static String REGISTER = "/register";
+    public final static String LOGIN = "/login";
+    public final static String SHORT = "/short";
+    public final static String STATISTICS = "/statistics";
+    public final static String REDIRECTION = "/redirection";
+    public final static String REDIRECT = "/redirect";
 
     public final static String ADMINISTRATION_REGISTER = "/administration/register";
     public final static String ADMINISTRATION_LOGIN = "/administration/login";

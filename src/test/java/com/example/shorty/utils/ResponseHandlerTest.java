@@ -1,4 +1,4 @@
-package com.example.shorty.responsehandler;
+package com.example.shorty.utils;
 
 import com.example.shorty.utils.ResponseHandler;
 import org.junit.jupiter.api.Test;

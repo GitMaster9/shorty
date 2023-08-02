@@ -1,10 +1,10 @@
 package com.example.shorty.restapi;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
-@AllArgsConstructor
-@ToString
 @Getter
 @Setter
 public class ShortingRequest {

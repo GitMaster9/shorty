@@ -6,7 +6,6 @@ import com.example.shorty.utils.StringGenerator;
 import com.example.shorty.utils.StringGeneratorType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Map;
 
 @Service
 public class AccountService {
@@ -17,42 +16,24 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    public Account addNewAccount(Map<String, Object> requestMap) {
-        Object accountIdObject = requestMap.get("accountId");
-        if (accountIdObject == null) {
-            return null;
-        }
-
-        String accountId = accountIdObject.toString();
-
+    public Account addNewAccount(String accountId) {
         Account account =  accountRepository.findByAccountId(accountId);
         if (account != null) {
             return null;
         }
 
         String password = StringGenerator.generateRandomString(StringGeneratorType.PASSWORD);
-        Account newAccount = new Account(accountId, password);
+
+        Account newAccount = new Account();
+        newAccount.setAccountId(accountId);
+        newAccount.setPassword(password);
+
         accountRepository.save(newAccount);
 
         return newAccount;
     }
 
-    public boolean loginAccount(Map<String, Object> requestMap) {
-        Object accountIdObject = requestMap.get("accountId");
-        if (accountIdObject == null) {
-            return false;
-        }
-
-        Object passwordObject = requestMap.get("password");
-        if (passwordObject == null) {
-            return false;
-        }
-
-        String accountId = accountIdObject.toString();
-        String password = passwordObject.toString();
-
-        Account account = accountRepository.findByAccountIdAndPassword(accountId, password);
-
-        return account != null;
+    public Account loginAccount(String accountId, String password) {
+        return accountRepository.findByAccountIdAndPassword(accountId, password);
     }
 }

@@ -1,4 +1,4 @@
-package com.example.shorty.account;
+package com.example.shorty.repository;
 
 import com.example.shorty.repository.AccountRepository;
 import com.example.shorty.restapi.Account;

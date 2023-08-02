@@ -1,7 +1,5 @@
-package com.example.shorty.generator;
+package com.example.shorty.utils;
 
-import com.example.shorty.utils.StringGenerator;
-import com.example.shorty.utils.StringGeneratorType;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 

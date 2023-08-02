@@ -8,8 +8,6 @@ import com.example.shorty.utils.StringGenerator;
 import com.example.shorty.utils.StringGeneratorType;
 import com.example.shorty.utils.TokenEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
@@ -24,33 +22,19 @@ public class UrlShortenerService {
         this.accountRepository = accountRepository;
     }
 
-    public String getShortURL(String authorizationToken, Map<String, Object> requestMap) {
-        Account account = getAccountFromToken(authorizationToken);
-        if (account == null) {
-            return null;
-        }
-
-        Object urlObject = requestMap.get("url");
-        if (urlObject == null) {
-            return null;
-        }
-
-        int redirectType;
-        Object redirectTypeObject = requestMap.get("redirectType");
-        if (redirectTypeObject == null) {
-            redirectType = 302;
-        }
-        else {
-            redirectType = (int) redirectTypeObject;
-        }
-
-        String url = urlObject.toString();
+    public String shortURL(Account account, String url, int redirectType) {
         String shortUrl = generateShortUrl();
         String accountId = account.getAccountId();
-        UrlShortener urlShortener = new UrlShortener(url, shortUrl, accountId, redirectType, 0);
+
+        UrlShortener urlShortener = new UrlShortener();
+        urlShortener.setUrl(url);
+        urlShortener.setShortUrl(shortUrl);
+        urlShortener.setAccountId(accountId);
+        urlShortener.setRedirectType(redirectType);
+        urlShortener.setRedirects(0);
         urlShortenerRepository.save(urlShortener);
 
-        return urlShortener.getShortUrl();
+        return shortUrl;
     }
 
     private String generateShortUrl() {
@@ -59,41 +43,22 @@ public class UrlShortenerService {
         boolean urlExists = true;
         while (urlExists) {
             shortUrl = StringGenerator.generateRandomString(StringGeneratorType.URL);
-            urlExists = checkIfShortUrlExists(shortUrl);
+            urlExists = shortUrlExists(shortUrl);
         }
 
         return shortUrl;
     }
 
-    private boolean checkIfShortUrlExists(String shortUrl) {
+    private boolean shortUrlExists(String shortUrl) {
         UrlShortener urlShortener = urlShortenerRepository.findByShortUrl(shortUrl);
 
         return urlShortener != null;
     }
 
-    public ResponseEntity<Object> createShortResponse(boolean success, String helper) {
-        Map<String, String> data = new HashMap<>();
-        if (success) {
-            data.put("shortUrl", helper);
-        }
-        else {
-            data.put("description", helper);
-        }
-        return new ResponseEntity<>(data, HttpStatus.OK);
-    }
+    public List<UrlShortener> getStatistics(String accountId) {
+        List<UrlShortener> allURLs = urlShortenerRepository.findByAccountId(accountId);
 
-    public ResponseEntity<Object> getStatistics(String authorizationToken) {
-        Account account = getAccountFromToken(authorizationToken);
-        if (account == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        List<UrlShortener> allURLs = urlShortenerRepository.findByAccountId(account.getAccountId());
-
-        List<UrlShortener> uniqueURLs = getUniqueURLs(allURLs);
-        Map<String, Object> data = getUniqueURLsData(uniqueURLs);
-
-        return new ResponseEntity<>(data, HttpStatus.OK);
+        return getUniqueURLs(allURLs);
     }
 
     public List<UrlShortener> getUniqueURLs(List<UrlShortener> allURLs) {
@@ -115,23 +80,14 @@ public class UrlShortenerService {
 
             if (foundUnique) continue;
 
-            UrlShortener newUnique = new UrlShortener(currentUrl, current.getAccountId(), current.getRedirects());
+            UrlShortener newUnique = new UrlShortener();
+            newUnique.setUrl(currentUrl);
+            newUnique.setAccountId(current.getAccountId());
+            newUnique.setRedirects(current.getRedirects());
             uniqueURLs.add(newUnique);
         }
 
         return uniqueURLs;
-    }
-
-    public Map<String, Object> getUniqueURLsData(List<UrlShortener> uniqueURLs) {
-        Map<String, Object> data = new HashMap<>();
-
-        for (UrlShortener unique : uniqueURLs) {
-            String url = unique.getUrl();
-            int redirects = unique.getRedirects();
-            data.put(url, redirects);
-        }
-
-        return data;
     }
 
     public Account getAccountFromToken(String token) {
