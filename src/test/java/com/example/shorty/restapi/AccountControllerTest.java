@@ -37,10 +37,9 @@ class AccountControllerTest {
 
     @Test
     void registerTestMissingAccountId() throws Exception {
-        String accountId = "karlo";
+        final String accountId = "karlo";
 
-        Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("account", accountId);
+        final Map<String, Object> requestMap = new HashMap<>();
 
         given(accountService.addNewAccount(accountId)).willReturn(null);
 
@@ -55,9 +54,9 @@ class AccountControllerTest {
 
     @Test
     void registerTestFail() throws Exception {
-        String accountId = "karlo";
+        final String accountId = "karlo";
 
-        Map<String, Object> requestMap = new HashMap<>();
+        final Map<String, Object> requestMap = new HashMap<>();
         requestMap.put("accountId", accountId);
 
         given(accountService.addNewAccount(accountId)).willReturn(null);

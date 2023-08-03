@@ -31,8 +31,8 @@ public class AccountController {
 
         final Account newAccount = accountService.addNewAccount(accountId);
 
-        Map<String, Object> data = new HashMap<>();
-        boolean success;
+        final Map<String, Object> data = new HashMap<>();
+        final boolean success;
 
         if (newAccount != null) {
             success = true;
@@ -66,7 +66,7 @@ public class AccountController {
         final Account account = accountService.loginAccount(accountId, password);
 
         final boolean success = account != null;
-        Map<String, Object> data = new HashMap<>();
+        final Map<String, Object> data = new HashMap<>();
         data.put("success", success);
 
         return ResponseEntity.ok(data);

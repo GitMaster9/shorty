@@ -15,7 +15,7 @@ public class RedirectService {
     }
 
     public UrlShortener redirectUrl(String shortUrl) {
-        UrlShortener urlShortener = urlShortenerRepository.findByShortUrl(shortUrl);
+        final UrlShortener urlShortener = urlShortenerRepository.findByShortUrl(shortUrl);
         if (urlShortener == null) {
             return null;
         }

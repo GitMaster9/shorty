@@ -23,10 +23,10 @@ public class UrlShortenerService {
     }
 
     public String shortURL(Account account, String url, int redirectType) {
-        String shortUrl = generateShortUrl();
-        String accountId = account.getAccountId();
+        final String shortUrl = generateShortUrl();
+        final String accountId = account.getAccountId();
 
-        UrlShortener urlShortener = new UrlShortener();
+        final UrlShortener urlShortener = new UrlShortener();
         urlShortener.setUrl(url);
         urlShortener.setShortUrl(shortUrl);
         urlShortener.setAccountId(accountId);
@@ -50,19 +50,19 @@ public class UrlShortenerService {
     }
 
     private boolean shortUrlExists(String shortUrl) {
-        UrlShortener urlShortener = urlShortenerRepository.findByShortUrl(shortUrl);
+        final UrlShortener urlShortener = urlShortenerRepository.findByShortUrl(shortUrl);
 
         return urlShortener != null;
     }
 
     public List<UrlShortener> getStatistics(String accountId) {
-        List<UrlShortener> allURLs = urlShortenerRepository.findByAccountId(accountId);
+        final List<UrlShortener> allURLs = urlShortenerRepository.findByAccountId(accountId);
 
         return getUniqueURLs(allURLs);
     }
 
     public List<UrlShortener> getUniqueURLs(List<UrlShortener> allURLs) {
-        List<UrlShortener> uniqueURLs = new ArrayList<>();
+        final List<UrlShortener> uniqueURLs = new ArrayList<>();
 
         for (UrlShortener current : allURLs) {
             String currentUrl = current.getUrl();
@@ -93,9 +93,9 @@ public class UrlShortenerService {
     public Account getAccountFromToken(String token) {
         if (!token.startsWith(TokenEncoder.BASIC_TOKEN_START)) return null;
 
-        String[] decodedStrings = TokenEncoder.decodeBasicToken(token);
-        String accountId = decodedStrings[0];
-        String password = decodedStrings[1];
+        final String[] decodedStrings = TokenEncoder.decodeBasicToken(token);
+        final String accountId = decodedStrings[0];
+        final String password = decodedStrings[1];
 
         return accountRepository.findByAccountIdAndPassword(accountId, password);
     }

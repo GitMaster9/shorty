@@ -1,6 +1,5 @@
 package com.example.shorty.repository;
 
-import com.example.shorty.repository.AccountRepository;
 import com.example.shorty.restapi.Account;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,9 @@ class AccountRepositoryTest {
     void checkTestFind() {
         String accountId = "karlo";
 
-        Account testAccount = new Account(accountId, "password");
+        Account testAccount = new Account();
+        testAccount.setAccountId(accountId);
+        testAccount.setPassword("password");
         underTest.save(testAccount);
 
         Account account = underTest.findByAccountId(accountId);

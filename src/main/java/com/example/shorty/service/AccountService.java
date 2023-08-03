@@ -17,14 +17,14 @@ public class AccountService {
     }
 
     public Account addNewAccount(String accountId) {
-        Account account =  accountRepository.findByAccountId(accountId);
+        final Account account = accountRepository.findByAccountId(accountId);
         if (account != null) {
             return null;
         }
 
-        String password = StringGenerator.generateRandomString(StringGeneratorType.PASSWORD);
+        final String password = StringGenerator.generateRandomString(StringGeneratorType.PASSWORD);
 
-        Account newAccount = new Account();
+        final Account newAccount = new Account();
         newAccount.setAccountId(accountId);
         newAccount.setPassword(password);
 

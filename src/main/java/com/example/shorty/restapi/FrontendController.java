@@ -1,22 +1,22 @@
 package com.example.shorty.restapi;
 
-import com.example.shorty.utils.TokenEncoder;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import com.example.shorty.service.FrontendService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class FrontendController {
+
+    private final FrontendService frontendService;
+
+    @Autowired
+    public FrontendController(FrontendService frontendService) {
+        this.frontendService = frontendService;
+    }
 
     @GetMapping(ControllerPath.REGISTER)
     public String showRegisterPage(Account account, Model model) {
@@ -45,38 +45,20 @@ public class FrontendController {
 
     @PostMapping(ControllerPath.REGISTER)
     public String registerUser(@ModelAttribute Account account, Model model) {
-        String accountId = account.getAccountId();
+        final String accountId = account.getAccountId();
 
-        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
-
-        Map<String, String> data = new HashMap<>();
-        data.put("accountId", accountId);
-
-        WebClient.ResponseSpec responseSpec = client.post()
-                .uri(ControllerPath.ADMINISTRATION_REGISTER)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(data), HashMap.class)
-                .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.BAD_REQUEST,
-                        clientResponse -> Mono.empty()
-                );
-
-        HashMap response = responseSpec.bodyToMono(HashMap.class).block();
-
-        if (response == null) {
-            model.addAttribute("errorMessage", "Error: response object is null");
-            return "short";
+        if (accountId == null || accountId.isEmpty()) {
+            model.addAttribute("errorMessage", "Account Id field is empty");
+            return "register";
         }
 
-        boolean success = (boolean) response.get("success");
-        if (success) {
-            String password = response.get("password").toString();
-            model.addAttribute("successMessage", "Password: " + password);
+        final Account accountRegistered = frontendService.sendRegisterRequest(accountId);
+
+        if (accountRegistered == null) {
+            model.addAttribute("errorMessage", "Account ID is already taken!");
         }
         else {
-            String description = response.get("description").toString();
-            model.addAttribute("errorMessage", description);
+            model.addAttribute("successMessage", "Password: " + accountRegistered.getPassword());
         }
 
         return "register";
@@ -84,33 +66,16 @@ public class FrontendController {
 
     @PostMapping(ControllerPath.LOGIN)
     public String loginUser(@ModelAttribute Account account, Model model) {
-        String accountId = account.getAccountId();
-        String password = account.getPassword();
+        final String accountId = account.getAccountId();
+        final String password = account.getPassword();
 
-        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
-
-        Map<String, String> data = new HashMap<>();
-        data.put("accountId", accountId);
-        data.put("password", password);
-
-        WebClient.ResponseSpec responseSpec = client.post()
-                .uri(ControllerPath.ADMINISTRATION_LOGIN)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(data), HashMap.class)
-                .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.BAD_REQUEST,
-                        clientResponse -> Mono.empty()
-                );
-
-        HashMap response = responseSpec.bodyToMono(HashMap.class).block();
-
-        if (response == null) {
-            model.addAttribute("errorMessage", "Error: response object is null");
-            return "short";
+        if (accountId.isEmpty() || password.isEmpty()) {
+            model.addAttribute("errorMessage", "User credentials are empty");
+            return "login";
         }
 
-        boolean success = (boolean) response.get("success");
+        final boolean success = frontendService.sendLoginRequest(accountId, password);
+
         if (success) {
             model.addAttribute("successMessage", "Login successful");
         }
@@ -123,17 +88,27 @@ public class FrontendController {
 
     @PostMapping(ControllerPath.SHORT)
     public String shortUrl(ShortingRequest shortingRequest, Model model) {
-        String accountId = shortingRequest.getAccountId();
-        String password = shortingRequest.getPassword();
-        String url = shortingRequest.getUrl();
-        String redirectTypeString = shortingRequest.getRedirectType();
+        final String accountId = shortingRequest.getAccountId();
+        final String password = shortingRequest.getPassword();
+        final String url = shortingRequest.getUrl();
+
+        if (accountId.isEmpty() || password.isEmpty() || url.isEmpty()) {
+            model.addAttribute("errorMessage", "Fields can't be empty");
+            return "short";
+        }
 
         int redirectType;
-        try {
-            redirectType = Integer.parseInt(redirectTypeString);
+        String redirectTypeString = shortingRequest.getRedirectType();
+        if (redirectTypeString.isEmpty()) {
+            redirectType = 302;
         }
-        catch (NumberFormatException nfe) {
-            redirectType = 400;
+        else {
+            try {
+                redirectType = Integer.parseInt(redirectTypeString);
+            }
+            catch (NumberFormatException nfe) {
+                redirectType = 0;
+            }
         }
 
         if (redirectType != 301 && redirectType != 302) {
@@ -141,87 +116,34 @@ public class FrontendController {
             return "short";
         }
 
-        String token = TokenEncoder.encodeCredentials(accountId, password);
+        final ShortingResponse shortingResponse = frontendService.sendShortRequest(accountId, password, url, redirectType);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put("url", url);
-        data.put("redirectType", redirectType);
-
-        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
-
-        WebClient.ResponseSpec responseSpec = client.post()
-                .uri(ControllerPath.ADMINISTRATION_SHORT)
-                .headers(httpHeaders -> httpHeaders.setBasicAuth(token))
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(data), HashMap.class)
-                .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.BAD_REQUEST,
-                        clientResponse -> Mono.empty()
-                );
-
-        HashMap response = responseSpec.bodyToMono(HashMap.class).block();
-
-        if (response == null) {
-            model.addAttribute("errorMessage", "Error: response object is null");
+        final String description = shortingResponse.getDescription();
+        if (description != null) {
+            model.addAttribute("errorMessage", description);
             return "short";
         }
 
-        Object descriptionObject = response.get("description");
-        if (descriptionObject != null) {
-            model.addAttribute("errorMessage", descriptionObject.toString());
-            return "short";
-        }
-
-        Object shortUrlObject = response.get("shortUrl");
-        if (shortUrlObject == null) {
-            model.addAttribute("errorMessage", "Error: response invalid");
-            return "short";
-        }
-
-        model.addAttribute("successMessage", "short URL: " + shortUrlObject);
+        final String shortUrl = shortingResponse.getShortUrl();
+        model.addAttribute("successMessage", "short URL: " + shortUrl);
 
         return "short";
     }
 
     @PostMapping(ControllerPath.STATISTICS)
     public String getStatistics(Account account, Model model) {
-        String accountId = account.getAccountId();
-        String password = account.getPassword();
-        String token = TokenEncoder.encodeCredentials(accountId, password);
+        final String accountId = account.getAccountId();
+        final String password = account.getPassword();
 
-        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
-
-        WebClient.ResponseSpec responseSpec = client.get()
-                .uri(ControllerPath.ADMINISTRATION_STATISTICS)
-                .headers(httpHeaders -> httpHeaders.setBasicAuth(token))
-                .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.BAD_REQUEST,
-                        clientResponse -> Mono.empty()
-                );
-
-        Map response = responseSpec.bodyToMono(Map.class).block();
-
-        if (response == null) {
-            model.addAttribute("errorMessage", "Error: response object is null");
+        if (accountId.isEmpty() || password.isEmpty()) {
+            model.addAttribute("errorMessage", "User credentials are empty");
             return "statistics";
         }
 
-        List<UrlShortener> receivedURLs = new ArrayList<>();
-
-        for (Object urlObject : response.keySet()) {
-            String url = urlObject.toString();
-            int redirects = (int) response.get(url);
-            //UrlShortener newUrl = new UrlShortener(url, redirects);
-            UrlShortener newUrl = new UrlShortener();
-            newUrl.setUrl(url);
-            newUrl.setRedirects(redirects);
-            receivedURLs.add(newUrl);
-        }
+        final List<UrlShortener> receivedURLs = frontendService.sendStatisticsRequest(accountId, password);
 
         if (receivedURLs.isEmpty()) {
-            model.addAttribute("successMessage", "This user has no registered URLs");
+            model.addAttribute("successMessage", "No registered URLs for this user");
         }
 
         model.addAttribute("URLs", receivedURLs);
@@ -230,30 +152,13 @@ public class FrontendController {
     }
 
     @GetMapping(ControllerPath.GET_URL)
-    public ResponseEntity<Void> redirectShortURLGet(@ModelAttribute UrlShortener urlShortener) {
-        String shortUrl = urlShortener.getShortUrl();
-        System.out.println(shortUrl);
+    public ResponseEntity<Void> redirect(@ModelAttribute UrlShortener urlShortener) {
+        final String shortUrl = urlShortener.getShortUrl();
 
-        String urlApi = ControllerPath.REDIRECTION_SHORT_URL + shortUrl;
-        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
-
-        WebClient.ResponseSpec responseSpec = client.get()
-                .uri(urlApi)
-                .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.NOT_FOUND,
-                        clientResponse -> Mono.empty()
-                );
-
-        UrlShortener urlShortener1 = responseSpec.bodyToMono(UrlShortener.class).block();
-
-        if (urlShortener1 == null) {
-            return ResponseEntity.status(404).build();
+        if (shortUrl.isEmpty()) {
+            return ResponseEntity.status(400).build();
         }
 
-        String url = urlShortener1.getUrl();
-        int redirectType = urlShortener1.getRedirectType();
-
-        return ResponseEntity.status(redirectType).location(URI.create(url)).build();
+        return frontendService.sendRedirectRequest(shortUrl);
     }
 }

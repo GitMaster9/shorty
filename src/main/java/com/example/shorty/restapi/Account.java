@@ -1,15 +1,15 @@
 package com.example.shorty.restapi;
 
 import jakarta.persistence.*;
-import lombok.*;
-import java.beans.ConstructorProperties;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-@RequiredArgsConstructor(onConstructor_ = @ConstructorProperties({"accountId", "password"})) // maknuti ovo
 public class Account {
     @Id
     @SequenceGenerator(
@@ -22,8 +22,6 @@ public class Account {
             generator = TableConstant.AccountSequence
     )
     private Long id;
-    @NonNull
     private String accountId;
-    @NonNull
     private String password;
 }

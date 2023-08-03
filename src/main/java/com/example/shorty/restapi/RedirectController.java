@@ -26,7 +26,7 @@ public class RedirectController {
             throw new ApiNotFoundException("No URL matches the short URL given");
         }
 
-        Map<String, Object> data = new HashMap<>();
+        final Map<String, Object> data = new HashMap<>();
         data.put("url", urlShortener.getUrl());
         data.put("redirectType", urlShortener.getRedirectType());
 

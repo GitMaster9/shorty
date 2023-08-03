@@ -29,12 +29,12 @@ public class UrlShortenerController {
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
         }
 
-        Object urlObject = requestMap.get("url");
+        final Object urlObject = requestMap.get("url");
         if (urlObject == null) {
             throw new ApiBadRequestException(ExceptionMessages.MISSING_URL);
         }
 
-        String url = urlObject.toString();
+        final String url = urlObject.toString();
 
         int redirectType;
         Object redirectTypeObject = requestMap.get("redirectType");
@@ -45,9 +45,9 @@ public class UrlShortenerController {
             redirectType = (int) redirectTypeObject;
         }
 
-        String shortUrl = urlShortenerService.shortURL(account, url, redirectType);
+        final String shortUrl = urlShortenerService.shortURL(account, url, redirectType);
 
-        Map<String, Object> data = new HashMap<>();
+        final Map<String, Object> data = new HashMap<>();
         data.put("shortUrl", shortUrl);
 
         return ResponseEntity.ok(data);
@@ -60,9 +60,9 @@ public class UrlShortenerController {
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
         }
 
-        List<UrlShortener> uniqueURLs = urlShortenerService.getStatistics(account.getAccountId());
+        final List<UrlShortener> uniqueURLs = urlShortenerService.getStatistics(account.getAccountId());
 
-        Map<String, Object> data = new HashMap<>();
+        final Map<String, Object> data = new HashMap<>();
 
         for (UrlShortener unique : uniqueURLs) {
             String url = unique.getUrl();

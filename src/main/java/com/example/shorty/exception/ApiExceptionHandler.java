@@ -11,7 +11,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(value = ApiBadRequestException.class)
     public ResponseEntity<Object> handleApiRequestException(ApiBadRequestException e) {
-        ApiException apiException = new ApiException();
+        final ApiException apiException = new ApiException();
         apiException.setMessage(e.getMessage());
         apiException.setHttpStatus(HttpStatus.BAD_REQUEST);
         apiException.setTimestamp(ZonedDateTime.now());
@@ -21,7 +21,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(value = ApiNotFoundException.class)
     public ResponseEntity<Object> handleApiNotFoundException(ApiNotFoundException e) {
-        ApiException apiException = new ApiException();
+        final ApiException apiException = new ApiException();
         apiException.setMessage(e.getMessage());
         apiException.setHttpStatus(HttpStatus.NOT_FOUND);
         apiException.setTimestamp(ZonedDateTime.now());
@@ -31,7 +31,7 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(value = ApiUnauthorizedException.class)
     public ResponseEntity<Object> handleApiUnauthorizedException(ApiUnauthorizedException e) {
-        ApiException apiException = new ApiException();
+        final ApiException apiException = new ApiException();
         apiException.setMessage(e.getMessage());
         apiException.setHttpStatus(HttpStatus.UNAUTHORIZED);
         apiException.setTimestamp(ZonedDateTime.now());

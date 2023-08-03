@@ -1,6 +1,6 @@
 package com.example.shorty.restapi;
 
-public class ControllerPath {
+public final class ControllerPath {
     public final static String API_URL_BASE = "http://localhost:8080";
 
     public final static String ADMINISTRATION = "/administration";

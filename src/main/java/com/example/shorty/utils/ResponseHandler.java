@@ -6,13 +6,13 @@ import java.util.HashMap;
 public class ResponseHandler {
 
     public static Object getDataFieldFromResponse(ResponseEntity<Object> responseEntity, String dataFieldName) {
-        Object responseBody =  responseEntity.getBody();
+        final Object responseBody =  responseEntity.getBody();
         if (responseBody == null) {
             return null;
         }
 
         @SuppressWarnings("rawtypes")
-        HashMap responseData = (HashMap) responseBody;
+        final HashMap responseData = (HashMap) responseBody;
 
         return responseData.get(dataFieldName);
     }

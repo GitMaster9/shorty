@@ -6,22 +6,22 @@ public class TokenEncoder {
     public static final String BASIC_TOKEN_START = "Basic ";
 
     public static String getBasicAuthorizationToken(String id, String password) {
-        String encoded = encodeCredentials(id, password);
+        final String encoded = encodeCredentials(id, password);
 
         return BASIC_TOKEN_START + encoded;
     }
 
     public static String encodeCredentials(String id, String password) {
-        String sensitive = id + ":" + password;
+        final String sensitive = id + ":" + password;
 
         return Base64.getEncoder().encodeToString(sensitive.getBytes());
     }
 
     public static String[] decodeBasicToken(String token) {
-        String encodedString = token.replaceFirst(BASIC_TOKEN_START, "");
+        final String encodedString = token.replaceFirst(BASIC_TOKEN_START, "");
 
-        byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
-        String decodedString = new String(decodedBytes);
+        final byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+        final String decodedString = new String(decodedBytes);
 
         return decodedString.split(":", 2);
     }

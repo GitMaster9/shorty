@@ -1,6 +1,5 @@
 package com.example.shorty.utils;
 
-import com.example.shorty.utils.TokenEncoder;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
