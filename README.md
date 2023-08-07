@@ -4,9 +4,9 @@
 ### How to build the application with Maven
 * install Maven to your operating system if you don't have it
 * go to the main project folder ("shorty")
-* run "mvn clean install" in the terminal to generate the "target" folder with the .jar file
+* run "mvn clean install" in the terminal to generate the "target" folder with the .war file
 * go to the newly generated folder "target"
-* run "java -jar shorty-0.0.1-SNAPSHOT.jar" in the terminal to start the application
+* run "java -jar shorty.war" in the terminal to start the application
 
 ### Maven Dependencies
 * Spring Web (spring-boot-starter-web)
