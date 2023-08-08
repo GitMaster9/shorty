@@ -87,34 +87,26 @@ class UrlShortenerServiceTest {
     }
 
     @Test
-    void getAccountFromTokenTestFail() {
-        String accountId = "karlo";
-        String password = "password";
+    void getAuthenticatedAccountTestFail() {
+        String token = "";
 
-        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
-
-        given(accountRepository.findByAccountIdAndPassword(accountId, password)).willReturn(null);
-        Account account = underTest.getAccountFromToken(token);
-
-        assertThat(account).isNull();
+        Account found = underTest.getAuthenticatedAccount(token);
+        assertThat(found).isNull();
     }
 
     @Test
-    void getAccountFromTokenTestSuccess() {
+    void getAuthenticatedAccountTestSuccess() {
         String accountId = "karlo";
         String password = "password";
-
         String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
 
-        Account exists = new Account();
-        exists.setAccountId(accountId);
-        exists.setPassword(password);
+        Account expected = new Account();
+        expected.setAccountId(accountId);
+        expected.setPassword(password);
 
-        given(accountRepository.findByAccountIdAndPassword(accountId, password)).willReturn(exists);
-        Account account = underTest.getAccountFromToken(token);
+        given(accountRepository.findByAccountIdAndPassword(accountId, password)).willReturn(expected);
 
-        assertThat(account).isNotNull();
-        assertThat(account.getAccountId()).isEqualTo(accountId);
-        assertThat(account.getPassword()).isEqualTo(password);
+        Account found = underTest.getAuthenticatedAccount(token);
+        assertThat(found).usingRecursiveComparison().isEqualTo(expected);
     }
 }

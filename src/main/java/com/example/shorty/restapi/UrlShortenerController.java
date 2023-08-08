@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.example.shorty.ShortyApplication.logger;
+
 @RestController
 @RequestMapping(path = ControllerPath.ADMINISTRATION)
 public class UrlShortenerController {
@@ -24,7 +26,7 @@ public class UrlShortenerController {
 
     @PostMapping(path = ControllerPath.SHORT)
     public ResponseEntity<Map<String, Object>> shortURL(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken, @RequestBody Map<String, Object> requestMap) {
-        final Account account = urlShortenerService.getAccountFromToken(authorizationToken);
+        final Account account = urlShortenerService.getAuthenticatedAccount(authorizationToken);
         if (account == null) {
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
         }
@@ -55,8 +57,9 @@ public class UrlShortenerController {
 
     @GetMapping(path = ControllerPath.STATISTICS)
     public ResponseEntity<Map<String, Object>> getStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
-        final Account account = urlShortenerService.getAccountFromToken(authorizationToken);
+        final Account account = urlShortenerService.getAuthenticatedAccount(authorizationToken);
         if (account == null) {
+            logger.info("Neautorizirano");
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
         }
 

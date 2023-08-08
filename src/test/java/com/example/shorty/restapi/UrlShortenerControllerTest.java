@@ -41,14 +41,12 @@ class UrlShortenerControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shortURLTestBadToken() throws Exception {
+    void shortURLTestUnauthorized() throws Exception {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeCredentials(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
 
         Map<String, Object> dummyRequestMap = new HashMap<>();
-
-        given(urlShortenerService.getAccountFromToken(token)).willReturn(null);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
                 .header("Authorization", token)
@@ -64,7 +62,7 @@ class UrlShortenerControllerTest {
     void shortURLTestMissingUrl() throws Exception {
         String accountId = "karlo";
         String password = "password";
-        String token = TokenEncoder.encodeCredentials(accountId, password);
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
 
         Map<String, Object> dummyRequestMap = new HashMap<>();
 
@@ -72,7 +70,7 @@ class UrlShortenerControllerTest {
         exists.setAccountId(accountId);
         exists.setPassword(password);
 
-        given(urlShortenerService.getAccountFromToken(token)).willReturn(exists);
+        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(exists);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
                 .header("Authorization", token)
@@ -102,7 +100,7 @@ class UrlShortenerControllerTest {
         exists.setAccountId(accountId);
         exists.setPassword(password);
 
-        given(urlShortenerService.getAccountFromToken(token)).willReturn(exists);
+        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(exists);
         given(urlShortenerService.shortURL(exists, url, redirectType)).willReturn(shortUrl);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
@@ -132,7 +130,7 @@ class UrlShortenerControllerTest {
         exists.setAccountId(accountId);
         exists.setPassword(password);
 
-        given(urlShortenerService.getAccountFromToken(token)).willReturn(exists);
+        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(exists);
         given(urlShortenerService.shortURL(exists, url, redirectType)).willReturn(shortUrl);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
@@ -146,23 +144,6 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    void getUserStatisticsTestBadToken() throws Exception {
-        String accountId = "karlo";
-        String password = "password";
-        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
-
-        given(urlShortenerService.getAccountFromToken(token)).willReturn(null);
-
-        ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON));
-
-        response.andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.UNAUTHORIZED)))
-                .andDo(print());
-    }
-
-    @Test
     void getUserStatisticsTestSuccess1() throws Exception {
         String accountId = "karlo";
         String password = "password";
@@ -172,13 +153,14 @@ class UrlShortenerControllerTest {
         account.setAccountId(accountId);
         account.setPassword(password);
 
-        given(urlShortenerService.getAccountFromToken(token)).willReturn(account);
+        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(account);
 
         ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
                 .header("Authorization", token)
                 .contentType(MediaType.APPLICATION_JSON));
 
         response.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.*", hasSize(0)))
                 .andDo(print());
     }
 
@@ -194,7 +176,7 @@ class UrlShortenerControllerTest {
 
         List<UrlShortener> uniqueURLs = UrlShortenerExample.getUniqueURLsExamples();
 
-        given(urlShortenerService.getAccountFromToken(token)).willReturn(account);
+        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(account);
         given(urlShortenerService.getStatistics(account.getAccountId())).willReturn(uniqueURLs);
 
         ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
@@ -203,6 +185,34 @@ class UrlShortenerControllerTest {
 
         response.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.*", hasSize(uniqueURLs.size())))
+                .andDo(print());
+    }
+
+    @Test
+    void getUserStatisticsTestUnauthorized() throws Exception {
+        String accountId = "karlo";
+        String password = "password";
+        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
+
+        ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        response.andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.UNAUTHORIZED)))
+                .andDo(print());
+    }
+
+    @Test
+    void giveBadAuthTokenTest() throws Exception {
+        String token = "invalid-token";
+
+        ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
+                .header("Authorization", token)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        response.andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.BAD_TOKEN)))
                 .andDo(print());
     }
 }

@@ -24,12 +24,11 @@ public class UrlShortenerService {
 
     public String shortURL(Account account, String url, int redirectType) {
         final String shortUrl = generateShortUrl();
-        final String accountId = account.getAccountId();
 
         final UrlShortener urlShortener = new UrlShortener();
         urlShortener.setUrl(url);
         urlShortener.setShortUrl(shortUrl);
-        urlShortener.setAccountId(accountId);
+        urlShortener.setAccountId(account.getAccountId());
         urlShortener.setRedirectType(redirectType);
         urlShortener.setRedirects(0);
         urlShortenerRepository.save(urlShortener);
@@ -90,13 +89,12 @@ public class UrlShortenerService {
         return uniqueURLs;
     }
 
-    public Account getAccountFromToken(String token) {
-        if (!token.startsWith(TokenEncoder.BASIC_TOKEN_START)) return null;
+    public Account getAuthenticatedAccount(String token) {
+        Account account = TokenEncoder.getAccountFromToken(token);
+        if (account == null) {
+            return null;
+        }
 
-        final String[] decodedStrings = TokenEncoder.decodeBasicToken(token);
-        final String accountId = decodedStrings[0];
-        final String password = decodedStrings[1];
-
-        return accountRepository.findByAccountIdAndPassword(accountId, password);
+        return accountRepository.findByAccountIdAndPassword(account.getAccountId(), account.getPassword());
     }
 }
