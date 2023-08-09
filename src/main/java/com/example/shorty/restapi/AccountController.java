@@ -3,6 +3,8 @@ package com.example.shorty.restapi;
 import com.example.shorty.exception.ApiBadRequestException;
 import com.example.shorty.exception.ExceptionMessages;
 import com.example.shorty.service.AccountService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import java.util.Map;
 @RequestMapping(path = ControllerPath.ADMINISTRATION)
 public class AccountController {
     private final AccountService accountService;
+    public static final Logger logger = LogManager.getLogger(AccountController.class);
 
     @Autowired
     public AccountController(AccountService accountService) {
@@ -24,6 +27,7 @@ public class AccountController {
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, Object> requestMap) {
         final Object accountIdObject = requestMap.get("accountId");
         if (accountIdObject == null) {
+            logger.info("Bad Request - " + ExceptionMessages.MISSING_ACCOUNT_ID);
             throw new ApiBadRequestException(ExceptionMessages.MISSING_ACCOUNT_ID);
         }
 
@@ -52,11 +56,13 @@ public class AccountController {
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, Object> requestMap) {
         final Object accountIdObject = requestMap.get("accountId");
         if (accountIdObject == null) {
+            logger.info("Bad Request - " + ExceptionMessages.MISSING_ACCOUNT_ID);
             throw new ApiBadRequestException(ExceptionMessages.MISSING_ACCOUNT_ID);
         }
 
         final Object passwordObject = requestMap.get("password");
         if (passwordObject == null) {
+            logger.info("Bad Request - " + ExceptionMessages.MISSING_PASSWORD);
             throw new ApiBadRequestException(ExceptionMessages.MISSING_PASSWORD);
         }
 

@@ -5,10 +5,12 @@ import com.example.shorty.exception.ExceptionMessages;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.HandlerInterceptor;
-import static com.example.shorty.ShortyApplication.logger;
 
 public class BasicAuthTokenInterceptor implements HandlerInterceptor {
+    public static final Logger logger = LogManager.getLogger(BasicAuthTokenInterceptor.class);
 
     @Override
     public boolean preHandle(
@@ -19,7 +21,7 @@ public class BasicAuthTokenInterceptor implements HandlerInterceptor {
         String authHeader = request.getHeader("Authorization");
 
         if (!TokenEncoder.isBasicTokenValid(authHeader)) {
-            logger.error("Test error by Karlo");
+            logger.info("BAD REQUEST - " + ExceptionMessages.BAD_TOKEN);
             throw new ApiBadRequestException(ExceptionMessages.BAD_TOKEN);
         }
 

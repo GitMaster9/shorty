@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.example.shorty.ShortyApplication.logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 @RestController
 @RequestMapping(path = ControllerPath.ADMINISTRATION)
 public class UrlShortenerController {
     private final UrlShortenerService urlShortenerService;
+    public static final Logger logger = LogManager.getLogger(UrlShortenerController.class);
 
     @Autowired
     public UrlShortenerController(UrlShortenerService urlShortenerService) {
@@ -28,11 +29,13 @@ public class UrlShortenerController {
     public ResponseEntity<Map<String, Object>> shortURL(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken, @RequestBody Map<String, Object> requestMap) {
         final Account account = urlShortenerService.getAuthenticatedAccount(authorizationToken);
         if (account == null) {
+            logger.info("Unauthorized - " + ExceptionMessages.UNAUTHORIZED);
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
         }
 
         final Object urlObject = requestMap.get("url");
         if (urlObject == null) {
+            logger.info("Bad Request - " + ExceptionMessages.MISSING_URL);
             throw new ApiBadRequestException(ExceptionMessages.MISSING_URL);
         }
 
@@ -59,7 +62,7 @@ public class UrlShortenerController {
     public ResponseEntity<Map<String, Object>> getStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
         final Account account = urlShortenerService.getAuthenticatedAccount(authorizationToken);
         if (account == null) {
-            logger.info("Neautorizirano");
+            logger.info("Unauthorized - " + ExceptionMessages.UNAUTHORIZED);
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
         }
 
