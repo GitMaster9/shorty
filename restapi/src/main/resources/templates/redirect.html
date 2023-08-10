@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Shorty | Redirect</title>
+</head>
+<body>
+<div>
+    <div>
+        <ul>
+            <li><a th:href="@{/register}">Register</a></li>
+            <li><a th:href="@{/login}">Login</a></li>
+            <li><a th:href="@{/short}">Short URL</a></li>
+            <li><a th:href="@{/statistics}">Statistics</a></li>
+            <li><a th:href="@{/redirect}">Redirect</a></li>
+        </ul>
+    </div>
+    <div>
+        <h1>URL redirection</h1>
+        <form action="#" th:action="@{/geturl}" method="get" th:object="${urlShortener}">
+            <div>
+                <label>URL:</label>
+                <input type="text" th:field="*{shortUrl}" />
+                <br/>
+                <button type="submit">Redirect</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
