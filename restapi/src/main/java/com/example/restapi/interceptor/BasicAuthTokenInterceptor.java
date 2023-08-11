@@ -2,7 +2,7 @@ package com.example.restapi.interceptor;
 
 import com.example.restapi.exception.ApiBadRequestException;
 import com.example.restapi.exception.ExceptionMessages;
-import com.example.utils.TokenEncoder;
+import com.example.core.utils.TokenEncoder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -21,7 +21,7 @@ public class BasicAuthTokenInterceptor implements HandlerInterceptor {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (!TokenEncoder.isBasicTokenValid(authHeader)) {
+        if (TokenEncoder.isBasicTokenInvalid(authHeader)) {
             logger.info("BAD REQUEST - " + ExceptionMessages.BAD_TOKEN);
             throw new ApiBadRequestException(ExceptionMessages.BAD_TOKEN);
         }

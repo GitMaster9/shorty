@@ -12,26 +12,26 @@ class AccountRepositoryTest {
     @Autowired
     private AccountRepository underTest;
 
-//    @Test
-//    void checkTestFind() {
-//        String accountId = "karlo";
-//
-//        Account testAccount = new Account();
-//        testAccount.setAccountId(accountId);
-//        testAccount.setPassword("password");
-//        underTest.save(testAccount);
-//
-//        Account account = underTest.findByAccountId(accountId);
-//
-//        assertThat(account).isEqualTo(testAccount);
-//    }
-//
-//    @Test
-//    void checkTestNotFind() {
-//        String accountId = "karlo";
-//
-//        Account account = underTest.findByAccountId(accountId);
-//
-//        assertThat(account).isNull();
-//    }
+    @Test
+    void checkTestFind() {
+        String accountId = "karlo";
+
+        Account testAccount = new Account();
+        testAccount.setAccountId(accountId);
+        testAccount.setPassword("password");
+        underTest.save(testAccount);
+
+        Account account = underTest.findByAccountId(accountId);
+
+        assertThat(account).isEqualTo(testAccount);
+    }
+
+    @Test
+    void checkTestNotFind() {
+        String accountId = "karlo";
+
+        Account account = underTest.findByAccountId(accountId);
+
+        assertThat(account).isNull();
+    }
 }
