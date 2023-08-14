@@ -36,9 +36,8 @@ public class AccountIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    public void registerTestBadRequest() throws Exception {
+    public void registerNoAccountIdTest() throws Exception {
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("account", "karlo1");
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_REGISTER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -50,9 +49,25 @@ public class AccountIntegrationTest {
     }
 
     @Test
-    public void registerExistingUserTest() throws Exception {
+    public void registerSuccessTest() throws Exception {
+        String accountId = "userRegisterSuccessTest";
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("accountId", "karlo2");
+        requestMap.put("accountId", accountId);
+
+        ResultActions response1 = mockMvc.perform(post(ControllerPath.ADMINISTRATION_REGISTER)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestMap)));
+
+        response1.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.success", CoreMatchers.is(true)))
+                .andDo(print());
+    }
+
+    @Test
+    public void registerExistingUserTest() throws Exception {
+        String accountId = "userRegisterExistingUserTest";
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("accountId", accountId);
 
         ResultActions response1 = mockMvc.perform(post(ControllerPath.ADMINISTRATION_REGISTER)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -72,10 +87,42 @@ public class AccountIntegrationTest {
     }
 
     @Test
-    public void loginTestFail() throws Exception {
+    public void loginNoAccountIdTest() throws Exception {
+        String password = "password";
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("accountId", "karlo3");
-        requestMap.put("password", "password");
+        requestMap.put("password", password);
+
+        ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_LOGIN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestMap)));
+
+        response.andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.MISSING_ACCOUNT_ID)))
+                .andDo(print());
+    }
+
+    @Test
+    public void loginNoPasswordTest() throws Exception {
+        String accountId = "userLoginNoPasswordTest";
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("accountId", accountId);
+
+        ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_LOGIN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestMap)));
+
+        response.andExpect(MockMvcResultMatchers.status().isBadRequest())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.MISSING_PASSWORD)))
+                .andDo(print());
+    }
+
+    @Test
+    public void loginFailTest() throws Exception {
+        String accountId = "userLoginFailTest";
+        String password = "password";
+        Map<String, Object> requestMap = new HashMap<>();
+        requestMap.put("accountId", accountId);
+        requestMap.put("password", password);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_LOGIN)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -87,9 +134,10 @@ public class AccountIntegrationTest {
     }
 
     @Test
-    public void loginTestSuccess() throws Exception {
+    public void loginSuccessTest() throws Exception {
+        String accountId = "userLoginSuccessTest";
         Map<String, Object> requestMap = new HashMap<>();
-        requestMap.put("accountId", "karlo4");
+        requestMap.put("accountId", accountId);
 
         MvcResult result = mockMvc.perform(post(ControllerPath.ADMINISTRATION_REGISTER)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -11,7 +11,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
-class RedirectServiceTest {
+class RedirectServiceUnitTest {
 
     @Mock
     private UrlShortenerRepository urlShortenerRepository;

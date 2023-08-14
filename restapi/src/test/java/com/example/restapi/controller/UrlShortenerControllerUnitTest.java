@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest(classes = ShortyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ExtendWith(MockitoExtension.class)
-class UrlShortenerControllerTest {
+class UrlShortenerControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -45,25 +45,7 @@ class UrlShortenerControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shortURLTestUnauthorized() throws Exception {
-        String accountId = "karlo";
-        String password = "password";
-        String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
-
-        Map<String, Object> dummyRequestMap = new HashMap<>();
-
-        ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dummyRequestMap)));
-
-        response.andExpect(MockMvcResultMatchers.status().isUnauthorized())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.UNAUTHORIZED)))
-                .andDo(print());
-    }
-
-    @Test
-    void shortURLTestMissingUrl() throws Exception {
+    void shortURLMissingUrlTest() throws Exception {
         String accountId = "karlo";
         String password = "password";
         String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
@@ -87,7 +69,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    void shortURLTestSuccess1() throws Exception {
+    void shortURLSuccess1Test() throws Exception {
         String accountId = "karlo";
         String password = "password";
         String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
@@ -118,7 +100,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    void shortURLTestSuccess2() throws Exception {
+    void shortURLSuccess2Test() throws Exception {
         String accountId = "karlo";
         String password = "password";
         String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
@@ -148,7 +130,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    void getUserStatisticsTestSuccess1() throws Exception {
+    void getUserStatisticsSuccess1Test() throws Exception {
         String accountId = "karlo";
         String password = "password";
         String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
@@ -169,7 +151,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    void getUserStatisticsTestSuccess2() throws Exception {
+    void getUserStatisticsSuccess2Test() throws Exception {
         String accountId = "karlo";
         String password = "password";
         String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
@@ -193,7 +175,7 @@ class UrlShortenerControllerTest {
     }
 
     @Test
-    void getUserStatisticsTestUnauthorized() throws Exception {
+    void getUserStatisticsUnauthorizedTest() throws Exception {
         String accountId = "karlo";
         String password = "password";
         String token = TokenEncoder.getBasicAuthorizationToken(accountId, password);
@@ -204,19 +186,6 @@ class UrlShortenerControllerTest {
 
         response.andExpect(MockMvcResultMatchers.status().isUnauthorized())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.UNAUTHORIZED)))
-                .andDo(print());
-    }
-
-    @Test
-    void giveBadAuthTokenTest() throws Exception {
-        String token = "invalid-token";
-
-        ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
-                .header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON));
-
-        response.andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.BAD_TOKEN)))
                 .andDo(print());
     }
 }

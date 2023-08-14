@@ -38,7 +38,7 @@ public class RedirectIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void redirectURLTestMissingShortUrl() throws Exception {
+    void redirectURLMissingShortUrlTest() throws Exception {
         ResultActions response = mockMvc.perform(get(ControllerPath.REDIRECTION)
                 .contentType(MediaType.APPLICATION_JSON));
 
@@ -47,8 +47,8 @@ public class RedirectIntegrationTest {
     }
 
     @Test
-    void redirectURLTestNotFound() throws Exception {
-        String shortUrl = "abcdefg";
+    void redirectURLNotFoundTest() throws Exception {
+        String shortUrl = "shortUrlRedirectURLNotFoundTest";
 
         ResultActions response = mockMvc.perform(get(ControllerPath.REDIRECTION)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -60,9 +60,9 @@ public class RedirectIntegrationTest {
     }
 
     @Test
-    void redirectURLTestSuccess() throws Exception {
-        String accountId = "karlo";
-        String url = "www.google.com";
+    void redirectURLSuccessTest() throws Exception {
+        String accountId = "userRedirectURLTestSuccess";
+        String url = "urlRedirectURLTestSuccess";
         int redirectType = 302;
 
         Map<String, Object> requestMapRegister = new HashMap<>();

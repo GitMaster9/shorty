@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 @AutoConfigureMockMvc(addFilters = false)
 @SpringBootTest(classes = ShortyApplication.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ExtendWith(MockitoExtension.class)
-class RedirectControllerTest {
+class RedirectControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;

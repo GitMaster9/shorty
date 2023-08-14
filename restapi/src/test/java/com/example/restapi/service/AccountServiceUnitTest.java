@@ -12,7 +12,7 @@ import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class AccountServiceTest {
+class AccountServiceUnitTest {
     @Mock
     private AccountRepository repository;
     private AccountService underTest;

@@ -20,7 +20,7 @@ import static org.mockito.BDDMockito.given;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-class UrlShortenerServiceTest {
+class UrlShortenerServiceUnitTest {
 
     @Mock
     private UrlShortenerRepository repository;
