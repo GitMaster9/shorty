@@ -10,6 +10,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new BasicAuthTokenInterceptor()).addPathPatterns(ControllerPath.ADMINISTRATION_STATISTICS, ControllerPath.ADMINISTRATION_SHORT);
+        //registry.addInterceptor(new BasicAuthTokenInterceptor()).addPathPatterns(ControllerPath.ADMINISTRATION_STATISTICS, ControllerPath.ADMINISTRATION_SHORT);
     }
 }

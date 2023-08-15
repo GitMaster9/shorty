@@ -90,6 +90,10 @@ public class UrlShortenerService {
         return uniqueURLs;
     }
 
+    public Account getAccountByAccountId(String accountId) {
+        return accountRepository.findByAccountId(accountId);
+    }
+
     public Account getAuthenticatedAccount(String token) {
         final String[] decodedArray = TokenEncoder.decodeBasicToken(token);
         if (decodedArray == null || decodedArray.length != 2) {

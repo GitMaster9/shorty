@@ -21,9 +21,9 @@ public class BasicAuthTokenInterceptor implements HandlerInterceptor {
 
         String authHeader = request.getHeader("Authorization");
 
-        if (TokenEncoder.isBasicTokenInvalid(authHeader)) {
-            logger.info("BAD REQUEST - " + ExceptionMessages.BAD_TOKEN);
-            throw new ApiBadRequestException(ExceptionMessages.BAD_TOKEN);
+        if (TokenEncoder.isBearerTokenInvalid(authHeader)) {
+            logger.info("BAD REQUEST - " + ExceptionMessages.BAD_BEARER_TOKEN);
+            throw new ApiBadRequestException(ExceptionMessages.BAD_BEARER_TOKEN);
         }
 
         return true;

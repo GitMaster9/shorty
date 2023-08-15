@@ -3,6 +3,7 @@ package com.example.restapi.controller;
 import com.example.core.ControllerPath;
 import com.example.core.model.Account;
 import com.example.core.model.UrlShortener;
+import com.example.core.utils.TokenEncoder;
 import com.example.restapi.exception.ApiBadRequestException;
 import com.example.restapi.exception.ApiUnauthorizedException;
 import com.example.restapi.exception.ExceptionMessages;
@@ -10,6 +11,7 @@ import com.example.restapi.service.UrlShortenerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
@@ -63,7 +65,8 @@ public class UrlShortenerController {
 
     @GetMapping(path = ControllerPath.STATISTICS)
     public ResponseEntity<Map<String, Object>> getStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
-        final Account account = urlShortenerService.getAuthenticatedAccount(authorizationToken);
+        String accountId = TokenEncoder.getPreferredUsernameFromBearerToken(authorizationToken);
+        final Account account = urlShortenerService.getAccountByAccountId(accountId);
         if (account == null) {
             logger.info("Unauthorized - " + ExceptionMessages.UNAUTHORIZED);
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
@@ -80,5 +83,25 @@ public class UrlShortenerController {
         }
 
         return ResponseEntity.ok(data);
+    }
+
+    @GetMapping(path = "/test/statistics")
+    @PreAuthorize("hasRole('client_admin')")
+    public String testStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
+        String accountId = TokenEncoder.getPreferredUsernameFromBearerToken(bearerToken);
+        System.out.println(accountId);
+        return "Hello";
+    }
+
+    @GetMapping(path = "/test1")
+    @PreAuthorize("hasRole('client_user')")
+    public String hello1() {
+        return "Hello";
+    }
+
+    @GetMapping(path = "/test2")
+    @PreAuthorize("hasRole('client_admin')")
+    public String hello2() {
+        return "Hello - ADMIN";
     }
 }

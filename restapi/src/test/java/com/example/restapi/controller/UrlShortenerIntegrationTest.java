@@ -194,7 +194,7 @@ public class UrlShortenerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         responseShorting.andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.BAD_TOKEN)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.BAD_BASIC_TOKEN)))
                 .andDo(print());
 
         ResultActions responseStatistics = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
@@ -202,7 +202,7 @@ public class UrlShortenerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON));
 
         responseStatistics.andExpect(MockMvcResultMatchers.status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.BAD_TOKEN)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.message", CoreMatchers.is(ExceptionMessages.BAD_BASIC_TOKEN)))
                 .andDo(print());
     }
 
