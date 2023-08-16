@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .requestMatchers("/administration/statistics").authenticated()
                 .requestMatchers("/administration/test1").authenticated()
                 .requestMatchers("/administration/test2").authenticated()
+                .requestMatchers("/administration/test3").authenticated()
                 .anyRequest().permitAll();
 
         http.oauth2ResourceServer().jwt()

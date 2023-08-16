@@ -4,11 +4,14 @@ import com.example.core.model.Account;
 import com.example.core.model.ShortingResponse;
 import com.example.core.model.UrlShortener;
 import com.example.core.ControllerPath;
-import com.example.core.utils.TokenEncoder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import java.net.URI;
@@ -19,6 +22,15 @@ import java.util.Map;
 
 @Service
 public class FrontendService {
+
+    @Value("${keycloakclient.client-id}")
+    private String CLIENT_ID;
+
+    @Value("${keycloakclient.client-secret}")
+    private String CLIENT_SECRET;
+
+    @Value("${keycloakclient.token-url}")
+    private String TOKEN_FULL_URL;
 
     final WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
 
@@ -79,7 +91,7 @@ public class FrontendService {
     }
 
     public ShortingResponse sendShortRequest(String accountId, String password, String url, int redirectType) {
-        final String token = TokenEncoder.encodeCredentials(accountId, password);
+        final String accessToken = getUserToken(accountId, password);
 
         final Map<String, Object> data = new HashMap<>();
         data.put("url", url);
@@ -89,7 +101,7 @@ public class FrontendService {
 
         WebClient.ResponseSpec responseSpec = client.post()
                 .uri(ControllerPath.ADMINISTRATION_SHORT)
-                .headers(httpHeaders -> httpHeaders.setBasicAuth(token))
+                .headers(httpHeaders -> httpHeaders.setBearerAuth(accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(data), HashMap.class)
                 .retrieve()
@@ -133,11 +145,16 @@ public class FrontendService {
     }
 
     public List<UrlShortener> sendStatisticsRequest(String accountId, String password) {
-        final String token = TokenEncoder.encodeCredentials(accountId, password);
+        final String accessToken = getUserToken(accountId, password);
+
+        List<UrlShortener> receivedURLs = new ArrayList<>();
+        if (accessToken == null) {
+            return receivedURLs;
+        }
 
         WebClient.ResponseSpec responseSpec = client.get()
                 .uri(ControllerPath.ADMINISTRATION_STATISTICS)
-                .headers(httpHeaders -> httpHeaders.setBasicAuth(token))
+                .headers(httpHeaders -> httpHeaders.setBearerAuth(accessToken))
                 .retrieve()
                 .onStatus(
                         status -> status == HttpStatus.UNAUTHORIZED,
@@ -145,8 +162,6 @@ public class FrontendService {
                 );
 
         final ResponseEntity<String> responseEntity = responseSpec.toEntity(String.class).block();
-
-        List<UrlShortener> receivedURLs = new ArrayList<>();
 
         if (responseEntity == null || responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
             return receivedURLs;
@@ -195,5 +210,33 @@ public class FrontendService {
         }
 
         return ResponseEntity.status(redirectType).location(URI.create(url)).build();
+    }
+
+    @SuppressWarnings("DuplicatedCode")
+    public String getUserToken(String username, String password) {
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        formData.add("grant_type", "password");
+        formData.add("client_id", CLIENT_ID);
+        formData.add("client_secret", CLIENT_SECRET);
+        formData.add("username", username);
+        formData.add("password", password);
+
+        WebClient.ResponseSpec responseSpec = WebClient.create(TOKEN_FULL_URL)
+                .post()
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(BodyInserters.fromFormData(formData))
+                .retrieve()
+                .onStatus(
+                        status -> status == HttpStatus.UNAUTHORIZED,
+                        clientResponse -> Mono.empty()
+                );
+
+        final HashMap response = responseSpec.bodyToMono(HashMap.class).block();
+
+        if (response == null) {
+            return null;
+        }
+
+        return (String) response.get("access_token");
     }
 }

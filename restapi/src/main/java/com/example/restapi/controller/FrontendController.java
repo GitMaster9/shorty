@@ -166,4 +166,24 @@ public class FrontendController {
 
         return frontendService.sendRedirectRequest(shortUrl);
     }
+
+    @SuppressWarnings("DuplicatedCode")
+    @PostMapping(path = ControllerPath.GET_USER_TOKEN)
+    public ResponseEntity<String> generateUserToken(@RequestBody Map<String, Object> requestMap) {
+        final Object usernameObject = requestMap.get("username");
+        final Object passwordObject = requestMap.get("password");
+        if (usernameObject == null || passwordObject == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        String username = (String) usernameObject;
+        String password = (String) passwordObject;
+
+        String token = frontendService.getUserToken(username, password);
+        if (token == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(token);
+    }
 }

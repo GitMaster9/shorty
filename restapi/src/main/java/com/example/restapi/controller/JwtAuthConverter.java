@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.stereotype.Component;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +24,7 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
 
     @Value("${jwt.auth.converter.principle-attribute}")
     private String principleAttribute;
-    @Value("${jwt.auth.converter.resource-id}")
+    @Value("${keycloakclient.client-id}")
     private String resourceId;
 
     @Override
@@ -43,6 +42,7 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
         );
     }
 
+    @SuppressWarnings("unchecked")
     private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
         Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
         if (resourceAccess == null) {

@@ -32,7 +32,9 @@ public class UrlShortenerController {
 
     @PostMapping(path = ControllerPath.SHORT)
     public ResponseEntity<Map<String, Object>> shortURL(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken, @RequestBody Map<String, Object> requestMap) {
-        final Account account = urlShortenerService.getAuthenticatedAccount(authorizationToken);
+        String accountId = TokenEncoder.getPreferredUsernameFromBearerToken(authorizationToken);
+
+        final Account account = urlShortenerService.getAccountByAccountId(accountId);
         if (account == null) {
             logger.info("Unauthorized - " + ExceptionMessages.UNAUTHORIZED);
             throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
@@ -66,6 +68,7 @@ public class UrlShortenerController {
     @GetMapping(path = ControllerPath.STATISTICS)
     public ResponseEntity<Map<String, Object>> getStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
         String accountId = TokenEncoder.getPreferredUsernameFromBearerToken(authorizationToken);
+
         final Account account = urlShortenerService.getAccountByAccountId(accountId);
         if (account == null) {
             logger.info("Unauthorized - " + ExceptionMessages.UNAUTHORIZED);
@@ -86,22 +89,43 @@ public class UrlShortenerController {
     }
 
     @GetMapping(path = "/test/statistics")
-    @PreAuthorize("hasRole('client_admin')")
-    public String testStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String bearerToken) {
-        String accountId = TokenEncoder.getPreferredUsernameFromBearerToken(bearerToken);
-        System.out.println(accountId);
-        return "Hello";
+    @PreAuthorize("hasRole('client_user')")
+    public ResponseEntity<Map<String, Object>> testStatistics(@RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken) {
+        String accountId = TokenEncoder.getPreferredUsernameFromBearerToken(authorizationToken);
+
+        final Account account = urlShortenerService.getAccountByAccountId(accountId);
+        if (account == null) {
+            logger.info("Unauthorized - " + ExceptionMessages.UNAUTHORIZED);
+            throw new ApiUnauthorizedException(ExceptionMessages.UNAUTHORIZED);
+        }
+
+        final List<UrlShortener> uniqueURLs = urlShortenerService.getStatistics(account.getAccountId());
+
+        final Map<String, Object> data = new HashMap<>();
+
+        for (UrlShortener unique : uniqueURLs) {
+            String url = unique.getUrl();
+            int redirects = unique.getRedirects();
+            data.put(url, redirects);
+        }
+
+        return ResponseEntity.ok(data);
     }
 
     @GetMapping(path = "/test1")
-    @PreAuthorize("hasRole('client_user')")
-    public String hello1() {
-        return "Hello";
+    public String helloPublic() {
+        return "Hello - PUBLIC";
     }
 
     @GetMapping(path = "/test2")
+    @PreAuthorize("hasRole('client_user')")
+    public String helloUser() {
+        return "Hello - USER";
+    }
+
+    @GetMapping(path = "/test3")
     @PreAuthorize("hasRole('client_admin')")
-    public String hello2() {
+    public String helloAdmin() {
         return "Hello - ADMIN";
     }
 }

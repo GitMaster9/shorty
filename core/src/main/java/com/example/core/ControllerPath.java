@@ -17,4 +17,6 @@ public final class ControllerPath {
     public final static String ADMINISTRATION_STATISTICS = "/administration/statistics";
     public final static String REDIRECTION_SHORT_URL = "/redirection?shortUrl=";
     public final static String GET_URL = "/geturl";
+    public final static String GET_USER_TOKEN = "/user-token";
+    public final static String GET_ADMIN_TOKEN = "/admin-token";
 }
