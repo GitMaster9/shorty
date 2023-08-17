@@ -56,7 +56,8 @@ class UrlShortenerControllerUnitTest {
         exists.setAccountId(accountId);
         exists.setPassword(password);
 
-        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(exists);
+        given(urlShortenerService.getAccountIdFromBearerToken(token)).willReturn(accountId);
+        given(urlShortenerService.getAccountByAccountId(accountId)).willReturn(exists);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
                 .header("Authorization", token)
@@ -86,7 +87,8 @@ class UrlShortenerControllerUnitTest {
         exists.setAccountId(accountId);
         exists.setPassword(password);
 
-        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(exists);
+        given(urlShortenerService.getAccountIdFromBearerToken(token)).willReturn(accountId);
+        given(urlShortenerService.getAccountByAccountId(accountId)).willReturn(exists);
         given(urlShortenerService.shortURL(exists, url, redirectType)).willReturn(shortUrl);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
@@ -116,7 +118,8 @@ class UrlShortenerControllerUnitTest {
         exists.setAccountId(accountId);
         exists.setPassword(password);
 
-        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(exists);
+        given(urlShortenerService.getAccountIdFromBearerToken(token)).willReturn(accountId);
+        given(urlShortenerService.getAccountByAccountId(accountId)).willReturn(exists);
         given(urlShortenerService.shortURL(exists, url, redirectType)).willReturn(shortUrl);
 
         ResultActions response = mockMvc.perform(post(ControllerPath.ADMINISTRATION_SHORT)
@@ -139,7 +142,8 @@ class UrlShortenerControllerUnitTest {
         account.setAccountId(accountId);
         account.setPassword(password);
 
-        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(account);
+        given(urlShortenerService.getAccountIdFromBearerToken(token)).willReturn(accountId);
+        given(urlShortenerService.getAccountByAccountId(accountId)).willReturn(account);
 
         ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)
                 .header("Authorization", token)
@@ -162,7 +166,8 @@ class UrlShortenerControllerUnitTest {
 
         List<UrlShortener> uniqueURLs = UrlShortenerExample.getUniqueURLsExamples();
 
-        given(urlShortenerService.getAuthenticatedAccount(token)).willReturn(account);
+        given(urlShortenerService.getAccountIdFromBearerToken(token)).willReturn(accountId);
+        given(urlShortenerService.getAccountByAccountId(accountId)).willReturn(account);
         given(urlShortenerService.getStatistics(account.getAccountId())).willReturn(uniqueURLs);
 
         ResultActions response = mockMvc.perform(get(ControllerPath.ADMINISTRATION_STATISTICS)

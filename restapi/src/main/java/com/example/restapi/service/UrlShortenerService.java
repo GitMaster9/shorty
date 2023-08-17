@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-//@ComponentScan(basePackageClasses = {UrlShortenerRepository.class, AccountRepository.class})
 public class UrlShortenerService {
     private final UrlShortenerRepository urlShortenerRepository;
     private final AccountRepository accountRepository;
@@ -92,6 +91,10 @@ public class UrlShortenerService {
 
     public Account getAccountByAccountId(String accountId) {
         return accountRepository.findByAccountId(accountId);
+    }
+
+    public String getAccountIdFromBearerToken(String token) {
+        return TokenEncoder.getPreferredUsernameFromBearerToken(token);
     }
 
     public Account getAuthenticatedAccount(String token) {

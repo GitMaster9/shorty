@@ -1,13 +1,11 @@
-package com.example.restapi.controller;
+package com.example.restapi.security;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.stereotype.Component;
@@ -21,11 +19,6 @@ import java.util.stream.Stream;
 public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationToken> {
 
     private final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-
-    @Value("${jwt.auth.converter.principle-attribute}")
-    private String principleAttribute;
-    @Value("${keycloakclient.client-id}")
-    private String resourceId;
 
     @Override
     public AbstractAuthenticationToken convert(@NonNull Jwt jwt) {
@@ -44,19 +37,19 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
 
     @SuppressWarnings("unchecked")
     private Collection<? extends GrantedAuthority> extractResourceRoles(Jwt jwt) {
-        Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
+        final Map<String, Object> resourceAccess = jwt.getClaim("resource_access");
         if (resourceAccess == null) {
             return Set.of();
         }
 
-        var tmp = resourceAccess.get(resourceId);
+        final Object tmp = resourceAccess.get(KeycloakConfig.CLIENT_ID);
         if (tmp == null) {
             return Set.of();
         }
 
-        Map<String, Object> resource = (Map<String, Object>) tmp;
+        final Map<String, Object> resource = (Map<String, Object>) tmp;
 
-        Collection<String> resourceRoles = (Collection<String>) resource.get("roles");
+        final Collection<String> resourceRoles = (Collection<String>) resource.get("roles");
 
         return resourceRoles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
@@ -64,13 +57,6 @@ public class JwtAuthConverter implements Converter<Jwt, AbstractAuthenticationTo
     }
 
     public String getPrincipleClaimName(Jwt jwt) {
-        String claimName;
-        if (principleAttribute != null) {
-            claimName = principleAttribute;
-        }
-        else {
-            claimName = JwtClaimNames.SUB;
-        }
-        return jwt.getClaim(claimName);
+        return jwt.getClaim(KeycloakConfig.PRINCIPLE_ATTRIBUTE);
     }
 }

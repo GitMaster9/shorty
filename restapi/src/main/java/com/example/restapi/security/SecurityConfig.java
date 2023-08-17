@@ -1,5 +1,6 @@
-package com.example.restapi.controller;
+package com.example.restapi.security;
 
+import com.example.core.ControllerPath;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +23,8 @@ public class SecurityConfig {
         http
                 .csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/administration/short").authenticated()
-                .requestMatchers("/administration/statistics").authenticated()
-                .requestMatchers("/administration/test1").authenticated()
-                .requestMatchers("/administration/test2").authenticated()
-                .requestMatchers("/administration/test3").authenticated()
+                .requestMatchers(ControllerPath.ADMINISTRATION_SHORT).authenticated()
+                .requestMatchers(ControllerPath.ADMINISTRATION_STATISTICS).authenticated()
                 .anyRequest().permitAll();
 
         http.oauth2ResourceServer().jwt()

@@ -24,7 +24,7 @@ class AccountServiceUnitTest {
 
     @Test
     void addNewAccountTestFail() {
-        String accountId = "karlo1";
+        String accountId = "testAddNewAccountTestFail";
         String password = "password";
 
         Account exists = new Account();
@@ -39,7 +39,7 @@ class AccountServiceUnitTest {
 
     @Test
     void addNewAccountTestSuccess() {
-        String accountId = "karlo1";
+        String accountId = "testAddNewAccountTestSuccess";
 
         given(repository.findByAccountId(accountId)).willReturn(null);
         Account account = underTest.addNewAccount(accountId);
@@ -53,7 +53,7 @@ class AccountServiceUnitTest {
 
     @Test
     void loginAccountTestFail() {
-        String accountId = "karlo1";
+        String accountId = "testLoginAccountTestFail";
         String password = "pwd";
 
         given(repository.findByAccountIdAndPassword(accountId, password)).willReturn(null);
@@ -64,7 +64,7 @@ class AccountServiceUnitTest {
 
     @Test
     void loginAccountTestSuccess() {
-        String accountId = "karlo1";
+        String accountId = "testLoginAccountTestSuccess";
         String password = "password";
 
         Account exists = new Account();

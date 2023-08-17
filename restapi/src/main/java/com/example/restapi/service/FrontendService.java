@@ -4,7 +4,8 @@ import com.example.core.model.Account;
 import com.example.core.model.ShortingResponse;
 import com.example.core.model.UrlShortener;
 import com.example.core.ControllerPath;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.restapi.security.AccessToken;
+import com.example.restapi.security.KeycloakConfig;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
@@ -23,23 +24,14 @@ import java.util.Map;
 @Service
 public class FrontendService {
 
-    @Value("${keycloakclient.client-id}")
-    private String CLIENT_ID;
-
-    @Value("${keycloakclient.client-secret}")
-    private String CLIENT_SECRET;
-
-    @Value("${keycloakclient.token-url}")
-    private String TOKEN_FULL_URL;
-
-    final WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
-
     public Account sendRegisterRequest(String accountId) {
-        Map<String, String> data = new HashMap<>();
+        final Map<String, String> data = new HashMap<>();
         data.put("accountId", accountId);
 
-        WebClient.ResponseSpec responseSpec = client.post()
-                .uri(ControllerPath.ADMINISTRATION_REGISTER)
+        final String urlApi = ControllerPath.API_URL_BASE + ControllerPath.ADMINISTRATION_REGISTER;
+
+        final WebClient.ResponseSpec responseSpec = WebClient.create(urlApi)
+                .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(data), HashMap.class)
                 .retrieve()
@@ -71,8 +63,10 @@ public class FrontendService {
         data.put("accountId", accountId);
         data.put("password", password);
 
-        WebClient.ResponseSpec responseSpec = client.post()
-                .uri(ControllerPath.ADMINISTRATION_LOGIN)
+        final String urlApi = ControllerPath.API_URL_BASE + ControllerPath.ADMINISTRATION_LOGIN;
+
+        final WebClient.ResponseSpec responseSpec = WebClient.create(urlApi)
+                .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(data), HashMap.class)
                 .retrieve()
@@ -91,16 +85,16 @@ public class FrontendService {
     }
 
     public ShortingResponse sendShortRequest(String accountId, String password, String url, int redirectType) {
-        final String accessToken = getUserToken(accountId, password);
+        final String accessToken = AccessToken.getUserToken(accountId, password);
 
         final Map<String, Object> data = new HashMap<>();
         data.put("url", url);
         data.put("redirectType", redirectType);
 
-        WebClient client = WebClient.create(ControllerPath.API_URL_BASE);
+        final String urlApi = ControllerPath.API_URL_BASE + ControllerPath.ADMINISTRATION_SHORT;
 
-        WebClient.ResponseSpec responseSpec = client.post()
-                .uri(ControllerPath.ADMINISTRATION_SHORT)
+        final WebClient.ResponseSpec responseSpec = WebClient.create(urlApi)
+                .post()
                 .headers(httpHeaders -> httpHeaders.setBearerAuth(accessToken))
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(Mono.just(data), HashMap.class)
@@ -119,20 +113,20 @@ public class FrontendService {
             return shortingResponse;
         }
 
-        HashMap response = responseSpec.bodyToMono(HashMap.class).block();
+        final HashMap response = responseSpec.bodyToMono(HashMap.class).block();
 
         if (response == null) {
             shortingResponse.setDescription("Api response is null");
             return shortingResponse;
         }
 
-        Object descriptionObject = response.get("description");
+        final Object descriptionObject = response.get("description");
         if (descriptionObject != null) {
             shortingResponse.setDescription(descriptionObject.toString());
             return shortingResponse;
         }
 
-        Object shortUrlObject = response.get("shortUrl");
+        final Object shortUrlObject = response.get("shortUrl");
         if (shortUrlObject == null) {
             shortingResponse.setDescription("ERROR: no short url");
             return shortingResponse;
@@ -145,15 +139,17 @@ public class FrontendService {
     }
 
     public List<UrlShortener> sendStatisticsRequest(String accountId, String password) {
-        final String accessToken = getUserToken(accountId, password);
+        final String accessToken = AccessToken.getUserToken(accountId, password);
 
-        List<UrlShortener> receivedURLs = new ArrayList<>();
+        final List<UrlShortener> receivedURLs = new ArrayList<>();
         if (accessToken == null) {
             return receivedURLs;
         }
 
-        WebClient.ResponseSpec responseSpec = client.get()
-                .uri(ControllerPath.ADMINISTRATION_STATISTICS)
+        final String urlApi = ControllerPath.API_URL_BASE + ControllerPath.ADMINISTRATION_STATISTICS;
+
+        final WebClient.ResponseSpec responseSpec = WebClient.create(urlApi)
+                .get()
                 .headers(httpHeaders -> httpHeaders.setBearerAuth(accessToken))
                 .retrieve()
                 .onStatus(
@@ -186,10 +182,10 @@ public class FrontendService {
     }
 
     public ResponseEntity<Void> sendRedirectRequest(String shortUrl) {
-        final String urlApi = ControllerPath.REDIRECTION_SHORT_URL + shortUrl;
+        final String urlApi = ControllerPath.API_URL_BASE + ControllerPath.REDIRECTION_SHORT_URL + shortUrl;
 
-        WebClient.ResponseSpec responseSpec = client.get()
-                .uri(urlApi)
+        final WebClient.ResponseSpec responseSpec = WebClient.create(urlApi)
+                .get()
                 .retrieve()
                 .onStatus(
                         status -> status == HttpStatus.NOT_FOUND,
@@ -214,14 +210,14 @@ public class FrontendService {
 
     @SuppressWarnings("DuplicatedCode")
     public String getUserToken(String username, String password) {
-        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+        final MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "password");
-        formData.add("client_id", CLIENT_ID);
-        formData.add("client_secret", CLIENT_SECRET);
+        formData.add("client_id", KeycloakConfig.CLIENT_ID);
+        formData.add("client_secret", KeycloakConfig.CLIENT_SECRET);
         formData.add("username", username);
         formData.add("password", password);
 
-        WebClient.ResponseSpec responseSpec = WebClient.create(TOKEN_FULL_URL)
+        final WebClient.ResponseSpec responseSpec = WebClient.create(KeycloakConfig.TOKEN_FULL_URL)
                 .post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .body(BodyInserters.fromFormData(formData))

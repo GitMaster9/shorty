@@ -36,7 +36,6 @@ public class AccountController {
         }
 
         final String accountId = accountIdObject.toString();
-
         final Account newAccount = accountService.addNewAccount(accountId);
 
         final Map<String, Object> data = new HashMap<>();

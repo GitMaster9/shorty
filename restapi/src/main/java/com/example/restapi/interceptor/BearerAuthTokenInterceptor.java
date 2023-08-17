@@ -10,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-public class BasicAuthTokenInterceptor implements HandlerInterceptor {
+public class BearerAuthTokenInterceptor implements HandlerInterceptor {
     public final Logger logger = LogManager.getLogger(this);
 
     @Override
@@ -19,7 +19,7 @@ public class BasicAuthTokenInterceptor implements HandlerInterceptor {
             @NonNull HttpServletResponse response,
             @NonNull Object handler) {
 
-        String authHeader = request.getHeader("Authorization");
+        final String authHeader = request.getHeader("Authorization");
 
         if (TokenEncoder.isBearerTokenInvalid(authHeader)) {
             logger.info("BAD REQUEST - " + ExceptionMessages.BAD_BEARER_TOKEN);

@@ -8,5 +8,4 @@ public final class ExceptionMessages {
     public final static String URL_NOT_FOUND = "No URL matches the short URL given";
     public final static String BAD_BASIC_TOKEN = "Basic authorization token is not valid";
     public final static String BAD_BEARER_TOKEN = "Bearer authorization token is not valid";
-    //public final static String MISSING_SHORT_URL = "Missing 'shortUrl' field in the request body";
 }

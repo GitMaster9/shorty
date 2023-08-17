@@ -45,14 +45,14 @@ public class TokenEncoder {
             return null;
         }
 
-        String payload = decodePayloadFromBearerToken(token);
+        final String payload = decodePayloadFromBearerToken(token);
 
         final String[] parts = payload.split(BEARER_TOKEN_USERNAME, 2);
         if (parts.length != 2) {
             return null;
         }
 
-        String name = parts[1];
+        final String name = parts[1];
         int removeIndex = name.indexOf('"');
         if (removeIndex < 0) {
             return null;
@@ -62,9 +62,9 @@ public class TokenEncoder {
     }
 
     public static String decodePayloadFromBearerToken(String token) {
-        Base64.Decoder decoder = Base64.getUrlDecoder();
+        final Base64.Decoder decoder = Base64.getUrlDecoder();
 
-        String[] chunks = token.split("\\.");
+        final String[] chunks = token.split("\\.");
 
         return new String(decoder.decode(chunks[1]));
     }

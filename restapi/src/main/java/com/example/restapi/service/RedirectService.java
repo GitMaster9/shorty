@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-//@ComponentScan(basePackageClasses = UrlShortenerRepository.class)
 public class RedirectService {
     private final UrlShortenerRepository urlShortenerRepository;
 
