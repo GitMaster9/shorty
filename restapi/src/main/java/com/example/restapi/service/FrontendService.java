@@ -5,14 +5,10 @@ import com.example.core.model.ShortingResponse;
 import com.example.core.model.UrlShortener;
 import com.example.core.ControllerPath;
 import com.example.restapi.security.AccessToken;
-import com.example.restapi.security.KeycloakConfig;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import java.net.URI;
@@ -85,7 +81,13 @@ public class FrontendService {
     }
 
     public ShortingResponse sendShortRequest(String accountId, String password, String url, int redirectType) {
+        final ShortingResponse shortingResponse = new ShortingResponse();
+
         final String accessToken = AccessToken.getUserToken(accountId, password);
+        if (accessToken == null) {
+            shortingResponse.setDescription("Can't get user access token - possible wrong user credential input");
+            return shortingResponse;
+        }
 
         final Map<String, Object> data = new HashMap<>();
         data.put("url", url);
@@ -105,8 +107,6 @@ public class FrontendService {
                 );
 
         final ResponseEntity<String> responseEntity = responseSpec.toEntity(String.class).block();
-
-        final ShortingResponse shortingResponse = new ShortingResponse();
 
         if (responseEntity == null || responseEntity.getStatusCode() == HttpStatus.UNAUTHORIZED) {
             shortingResponse.setDescription("User credentials not valid");
@@ -206,33 +206,5 @@ public class FrontendService {
         }
 
         return ResponseEntity.status(redirectType).location(URI.create(url)).build();
-    }
-
-    @SuppressWarnings("DuplicatedCode")
-    public String getUserToken(String username, String password) {
-        final MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "password");
-        formData.add("client_id", KeycloakConfig.CLIENT_ID);
-        formData.add("client_secret", KeycloakConfig.CLIENT_SECRET);
-        formData.add("username", username);
-        formData.add("password", password);
-
-        final WebClient.ResponseSpec responseSpec = WebClient.create(KeycloakConfig.TOKEN_FULL_URL)
-                .post()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(BodyInserters.fromFormData(formData))
-                .retrieve()
-                .onStatus(
-                        status -> status == HttpStatus.UNAUTHORIZED,
-                        clientResponse -> Mono.empty()
-                );
-
-        final HashMap response = responseSpec.bodyToMono(HashMap.class).block();
-
-        if (response == null) {
-            return null;
-        }
-
-        return (String) response.get("access_token");
     }
 }

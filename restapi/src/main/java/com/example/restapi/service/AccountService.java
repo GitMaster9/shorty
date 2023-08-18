@@ -86,7 +86,7 @@ public class AccountService {
     @SuppressWarnings("DuplicatedCode")
     public String getAdminToken() {
         final MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
-        formData.add("grant_type", "client_credentials");
+        formData.add("grant_type", KeycloakConfig.CLIENT_CREDENTIALS);
         formData.add("client_id", KeycloakConfig.CLIENT_ID);
         formData.add("client_secret", KeycloakConfig.CLIENT_SECRET);
 

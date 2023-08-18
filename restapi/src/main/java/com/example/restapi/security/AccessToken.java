@@ -7,10 +7,10 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
 import java.util.HashMap;
 
 public class AccessToken {
+    @SuppressWarnings("DuplicatedCode")
     public static String getUserToken(String username, String password) {
         final MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("grant_type", "password");
